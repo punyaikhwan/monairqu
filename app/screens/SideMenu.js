@@ -1,7 +1,14 @@
+/**
+ * rn-drawer example app
+ * https://github.com/facebook/react-native
+ */
 import React, { Component } from 'react';
-import {Actions, Router, Scene } from 'react-native-router-flux';
-import {StyleSheet, TouchableOpacity, Image} from 'react-native';
-import Reports from './screens/Reports';
+import {
+  AppRegistry,
+  Text,
+  View,
+} from 'react-native';
+
 import styles from './styles';
 const drawerStyles = {
   drawer: {
@@ -17,8 +24,8 @@ import MyControlPanel from './ControlPanel';
 import tweens from './tweens';
 
 let counter = 0;
+class SideMenu extends Component {
 
-class App extends Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
@@ -43,11 +50,35 @@ class App extends Component {
     };
   }
 
+  setDrawerType(type){
+    this.setState({
+      drawerType: type
+    })
+  }
+
+  tweenHandler(ratio){
+    if(!this.state.tweenHandlerPreset){ return {} }
+    return tweens[this.state.tweenHandlerPreset](ratio)
+  }
+
+  noopChange(){
+    this.setState({
+      changeVal: Math.random()
+    })
+  }
+
+  openDrawer(){
+    this._drawer.open()
+  }
+
+  setStateFrag(frag) {
+    this.setState(frag);
+  }
+
   render() {
     var controlPanel = <MyControlPanel closeDrawer={() => {
       this._drawer.close();
     }} />
-
     return (
       <Drawer
         ref={c => this.drawer = c}
@@ -73,54 +104,9 @@ class App extends Component {
         changeVal={this.state.changeVal}
         side={this.state.side}
         >
-        <Router>
-          <Scene key="root" navigationBarStyle={styles.navbarStyle} titleStyle={styles.title} >
-            <Scene key="reportsMap" component={Reports} title="Reports" initial={true} renderLeftButton={this.menuButton} renderRightButton={this.groupButton}/>
-          </Scene>
-        </Router>
       </Drawer>
-    )
-  }
-
-  tweenHandler(ratio){
-    if(!this.state.tweenHandlerPreset){ return {} }
-    return tweens[this.state.tweenHandlerPreset](ratio)
-  }
-
-  noopChange(){
-    this.setState({
-      changeVal: Math.random()
-    })
-  }
-
-  openDrawer(){
-    this._drawer.open()
-  }
-
-  setStateFrag(frag) {
-    this.setState(frag);
-  }
-
-  menuButton(){
-    return(
-      <TouchableOpacity onPress={() =>
-      {this.context.drawer.open();}}>
-        <Image
-          source={require('./images/menu.png')}
-          style={{width:22, height:22, marginLeft: 13.5, marginTop: 20}}/>
-      </TouchableOpacity>
-    )
-  }
-
-  groupButton(){
-    return(
-      <TouchableOpacity onPress={() => Actions.refresh({key:'drawer', open:true})}>
-        <Image
-          source={require('./images/groups.png')}
-          style={{width:22, height:22, marginRight: 13.5, marginTop: 20}}/>
-      </TouchableOpacity>
-    )
+    );
   }
 }
 
-export default App;
+export default SideMenu;
