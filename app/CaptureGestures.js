@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import {
-  NativeModules, StyleSheet, PanResponder, View
+  StyleSheet, PanResponder, View, Dimensions
 } from 'react-native';
 
-const deviceScreen = NativeModules.UIManager.Dimensions.window;
+const deviceScreen = Dimensions.get('window');
 
 export default class CaptureGestures extends Component {
 

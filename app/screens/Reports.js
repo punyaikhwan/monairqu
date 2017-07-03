@@ -13,12 +13,14 @@ import {
 } from 'react-native';
 import MapView from 'react-native-maps';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import DateTimePicker from 'react-native-modal-datetime-picker';
 
 var {height, width} = Dimensions.get('window');
 class Reports extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      isDateTimePickerVisible: false,
       region: {
         latitude: -7.7712196,
         longitude: 110.3473598,
@@ -58,37 +60,6 @@ class Reports extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <View style={styles.legenda}>
-          <Image source={require('../images/borobudur_sunrise_tour_16_copy.jpg')}
-            style={styles.imageLoc}/>
-          <View style={styles.legendakanan}>
-            <View style={styles.legendaatas}>
-
-              <Text style={styles.textLoc}>
-                {"CANDI BOROBUDUR\nJl. Badrawati, Borobudur,\nMagelang, Jawa Tengah"}
-              </Text>
-
-              <TouchableHighlight underlayColor={"rgba(0,0,0,0)"} onPress={this._onPressButton}>
-                <View style={styles.detailBtnContainer}>
-                <Text style={styles.detailBtnText}>
-                  Details
-                </Text>
-                </View>
-              </TouchableHighlight>
-
-            </View>
-            <View style={styles.legendabawah}>
-              <Image source={require('../images/group_4.png')}
-                style={styles.imageStatus}/>
-              <Image source={require('../images/group_12.png')}
-                style={styles.imageRecommend}/>
-              <Image source={require('../images/group_11.png')}
-                style={styles.imageRecommend}/>
-              <Image source={require('../images/group_13.png')}
-                style={styles.imageRecommend}/>
-            </View>
-          </View>
-        </View>
         <MapView
           style={styles.map}
           mapType="standard"
@@ -115,12 +86,59 @@ class Reports extends Component {
           </MapView.Marker>
         ))}
         </MapView>
+
+        <View style={styles.legenda}>
+          <Image source={require('../images/borobudur_sunrise_tour_16_copy.jpg')}
+            style={styles.imageLoc}/>
+          <View style={styles.legendakanan}>
+            <View style={styles.legendaatas}>
+
+              <Text style={styles.textLoc}>
+                {"CANDI BOROBUDUR\nJl. Badrawati, Borobudur,\nMagelang, Jawa Tengah"}
+              </Text>
+
+              <TouchableHighlight underlayColor={"rgba(0,0,0,0)"} onPress={this._showDateTimePicker}>
+                <View style={styles.detailBtnContainer}>
+                <Text style={styles.detailBtnText}>
+                  Details
+                </Text>
+                </View>
+              </TouchableHighlight>
+
+            </View>
+            <View style={styles.legendabawah}>
+              <Image source={require('../images/group_4.png')}
+                style={styles.imageStatus}/>
+              <Image source={require('../images/group_12.png')}
+                style={styles.imageRecommendSelected}/>
+              <Image source={require('../images/group_11.png')}
+                style={styles.imageRecommend}/>
+              <Image source={require('../images/group_13.png')}
+                style={styles.imageRecommend}/>
+            </View>
+          </View>
+        </View>
+
         <TouchableHighlight style={styles.mylocBtn} underlayColor={"rgba(0,0,0,0)"} onPress={this._onPressButton}>
           <View style={styles.myLocBtnContainer}>
           <Image source={require('../images/myloc.png')}
             style={styles.imageMyLoc}/>
           </View>
         </TouchableHighlight>
+
+        <View style={styles.statusDesc}>
+          <Image source={require('../images/group_12.png')}
+            style={styles.imageStatusDesc}/>
+          <Text style={styles.textStatusDesc}>
+            Aman untuk olahraga outdoor
+          </Text>
+        </View>
+
+        <DateTimePicker
+          isVisible={this.state.isDateTimePickerVisible}
+          onConfirm={this._handleDatePicked}
+          onCancel={this._hideDateTimePicker}
+        />
       </View>
     );
   }
@@ -128,6 +146,15 @@ class Reports extends Component {
   _onPressButton() {
 
   }
+
+  _showDateTimePicker = () => this.setState({ isDateTimePickerVisible: true });
+
+  _hideDateTimePicker = () => this.setState({ isDateTimePickerVisible: false });
+
+  _handleDatePicked = (date) => {
+    console.log('A date has been picked: ', date);
+    this._hideDateTimePicker();
+  };
 
 }
 
@@ -148,7 +175,8 @@ const styles = StyleSheet.create({
     height: 113,
     marginTop:72,
     backgroundColor: '#172c41',
-    flexDirection: "row"
+    flexDirection: "row",
+    position: 'absolute'
   },
   imageLoc: {
     width:88,
@@ -162,11 +190,21 @@ const styles = StyleSheet.create({
     marginLeft:14,
     marginTop:11
   },
+
   imageRecommend: {
     width:34,
     height:34,
     marginLeft:16,
     marginTop:11
+  },
+  imageRecommendSelected: {
+    width:34,
+    height:34,
+    marginLeft:16,
+    marginTop:11,
+    borderColor: 'white',
+    borderWidth: 3,
+    borderRadius: 34
   },
   legendakanan:{
     flexDirection:"column"
@@ -183,6 +221,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginTop: 11
   },
+
   detailBtnText: {
     fontSize: 14,
     color: "#319bf5",
@@ -228,6 +267,37 @@ const styles = StyleSheet.create({
     color: 'white',
     marginTop: 15,
     marginLeft: 15
+  },
+
+  percentageContainerSelected: {
+    width: 60,
+    height: 60,
+    borderRadius: 100,
+    borderWidth:6,
+    backgroundColor:'#f6a623'
+  },
+  statusDesc: {
+    marginLeft: 36,
+    marginRight: 36,
+    marginTop: 191.8,
+    width: width-72,
+    flexDirection: "row",
+    backgroundColor: "#4990e2",
+    borderRadius: 34,
+    position: 'absolute'
+  },
+
+  imageStatusDesc: {
+    width: 34,
+    height: 34
+  },
+
+  textStatusDesc: {
+    color: 'white',
+    fontSize: 16,
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    width: width-72-34,
   },
 });
 

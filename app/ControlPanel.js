@@ -2,8 +2,11 @@ import React, { Component } from 'react';
 import {
   SwitchIOS,
   View,
-  Text
+  Text,
+  TouchableOpacity,
+  Image
 } from 'react-native';
+import {Actions} from 'react-native-router-flux';
 
 import styles from './styles';
 import Button from './Button';
@@ -21,7 +24,23 @@ export default class ControlPanel extends Component {
           }}
           text="Close Drawer"
         />
-        <Text>
+        <Text
+          onPress={() => {
+            Actions.hello()
+          }}>
+          Hello
+        </Text>
+        <Text
+          onPress={() => {
+            Actions.reportsMap()
+          }}>
+          Map
+        </Text>
+        <Text
+          onPress={() => {
+            Actions.chart()
+          }}>
+          ReportChart
         </Text>
       </View>
     )

@@ -2,7 +2,10 @@ import React, { Component } from 'react';
 import {Actions, Router, Scene } from 'react-native-router-flux';
 import {StyleSheet, TouchableOpacity, Image} from 'react-native';
 import Reports from './screens/Reports';
+import Hello from './screens/Hello';
 import styles from './styles';
+import ReportChart from './screens/ReportChart';
+
 const drawerStyles = {
   drawer: {
     shadowColor: "#000000",
@@ -13,7 +16,6 @@ const drawerStyles = {
 
 import Drawer from 'react-native-drawer';
 import MyControlPanel from './ControlPanel';
-
 import tweens from './tweens';
 
 let counter = 0;
@@ -42,15 +44,14 @@ class App extends Component {
       side: "left",
     };
   }
-
   render() {
     var controlPanel = <MyControlPanel closeDrawer={() => {
-      this._drawer.close();
+      this.closeDrawer;
     }} />
 
     return (
       <Drawer
-        ref={c => this.drawer = c}
+        ref={c => this._drawer = c}
         type={this.state.drawerType}
         animation={this.state.animation}
         openDrawerOffset={this.state.openDrawerOffset}
@@ -72,10 +73,13 @@ class App extends Component {
         negotiatePan={this.state.negotiatePan}
         changeVal={this.state.changeVal}
         side={this.state.side}
+        open={this.state._open}
         >
         <Router>
           <Scene key="root" navigationBarStyle={styles.navbarStyle} titleStyle={styles.title} >
-            <Scene key="reportsMap" component={Reports} title="Reports" initial={true} renderLeftButton={this.menuButton} renderRightButton={this.groupButton}/>
+            <Scene key="reportsMap" component={Reports} title="Reports" initial={false} renderBackButton={this.menuButton} renderLeftButton={this.menuButton} renderRightButton={this.groupButton}/>
+            <Scene key="hello" component={Hello} title="Hello" renderBackButton={this.menuButton} renderLeftButton={this.menuButton} renderRightButton={this.groupButton}/>
+            <Scene key="chart" component={ReportChart} title="Reports" initial={true} renderBackButton={this.menuButton} renderLeftButton={this.menuButton} renderRightButton={this.groupButton}/>
           </Scene>
         </Router>
       </Drawer>
@@ -94,7 +98,15 @@ class App extends Component {
   }
 
   openDrawer(){
-    this._drawer.open()
+    this.setState({
+      open: "true"
+    })
+  }
+
+  closeDrawer(){
+    this.setState({
+      open: "false"
+    })
   }
 
   setStateFrag(frag) {
@@ -103,8 +115,7 @@ class App extends Component {
 
   menuButton(){
     return(
-      <TouchableOpacity onPress={() =>
-      {this.context.drawer.open();}}>
+      <TouchableOpacity onPress={() => {Actions.get('drawer').ref.toggle()}}>
         <Image
           source={require('./images/menu.png')}
           style={{width:22, height:22, marginLeft: 13.5, marginTop: 20}}/>
