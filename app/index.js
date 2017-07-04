@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import {Actions, Router, Scene } from 'react-native-router-flux';
-import {StyleSheet, TouchableOpacity, Image} from 'react-native';
+import {StyleSheet, TouchableOpacity, Image, StatusBar, Share} from 'react-native';
 import Reports from './screens/Reports';
 import Hello from './screens/Hello';
 import styles from './styles';
 import ReportChart from './screens/ReportChart';
 import SimpleTab from './screens/SimpleTab';
 import LineChartScreen from './screens/LineChartScreen';
+import Icon from 'react-native-vector-icons/Entypo';
 
 const drawerStyles = {
   drawer: {
@@ -53,6 +54,7 @@ class App extends Component {
     }} />
 
     return (
+
       <Drawer
         ref={c => this._drawer = c}
         type={this.state.drawerType}
@@ -81,11 +83,15 @@ class App extends Component {
         <Router>
           <Scene key="root" navigationBarStyle={styles.navbarStyle} titleStyle={styles.title} >
             <Scene key="reportsMap" component={Reports} title="Reports" initial={true} renderBackButton={()=>this.menuButton()} renderLeftButton={()=>this.menuButton()} renderRightButton={this.groupButton}/>
-            <Scene key="chart" component={ReportChart} title="Reports" initial={false} renderBackButton={()=>this.menuButton()} renderLeftButton={()=>this.menuButton()} renderRightButton={this.groupButton}/>
-            <Scene key="tab" component={SimpleTab} title="Tabs" initial={false} renderBackButton={()=>this.menuButton()} renderLeftButton={()=>this.menuButton()} renderRightButton={this.groupButton}/>
+            <Scene key="chart" component={ReportChart} title="Reports" initial={false} renderBackButton={()=>this.backButton()} renderRightButton={()=>this.shareButton()}/>
+            <Scene key="LocationList" component={LocationList} title="Location List" initial={false} renderBackButton={()=>this.menuButton()} renderLeftButton={()=>this.menuButton()} renderRightButton={this.groupButton}/>
             <Scene key="lineChart" component={LineChartScreen} title="Chart" initial={false} renderBackButton={()=>this.menuButton()} renderLeftButton={()=>this.menuButton()} renderRightButton={this.groupButton}/>
           </Scene>
         </Router>
+        <StatusBar
+         backgroundColor="#172c41"
+         barStyle="default"
+        />
       </Drawer>
     );
   }
@@ -121,8 +127,8 @@ class App extends Component {
     return(
       <TouchableOpacity onPress={() => this.openDrawer()}>
         <Image
-          source={require('./images/menu.png')}
-          style={{width:22, height:22, marginLeft: 13.5, marginTop: 20}}/>
+          source={require('./images/group_2.png')}
+          style={{width:22, height:22, marginLeft: 13.5, marginTop: 10}}/>
       </TouchableOpacity>
     )
   }
@@ -132,7 +138,31 @@ class App extends Component {
       <TouchableOpacity onPress={() => Actions.refresh({key:'drawer', open:true})}>
         <Image
           source={require('./images/groups.png')}
-          style={{width:22, height:22, marginRight: 13.5, marginTop: 20}}/>
+          style={{width:22, height:22, marginRight: 13.5, marginTop: 10}}/>
+      </TouchableOpacity>
+    )
+  }
+
+  _shareMessage() {
+    Share.share({
+      message: 'React Native | A framework for building native apps using React'
+    });
+  }
+
+  shareButton(){
+    return(
+      <TouchableOpacity onPress={() => this._shareMessage()}>
+        <Image
+          source={require('./images/groups_copy_3.png')}
+          style={{width:22, height:22, marginRight: 13.5, marginTop: 10}}/>
+      </TouchableOpacity>
+    )
+  }
+
+  backButton(){
+    return(
+      <TouchableOpacity onPress={() => Actions.pop()}>
+        <Icon name="chevron-thin-left" color="#848484" size={30} style={{marginTop:10}}/>
       </TouchableOpacity>
     )
   }

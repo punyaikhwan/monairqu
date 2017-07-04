@@ -196,47 +196,49 @@ class ReportChart extends Component {
             tabTextStyle={styles.tabTextStyle}
             activeTabTextStyle={styles.activeTabTextStyle} />
             {this.state.customStyleIndex === 0 &&
-              <View style={{width:width-20, height:250, flexDirection:'row'}}>
-                <Icon name="chevron-thin-left" color="#848484" size={40} style={{textAlignVertical:'center', flex:1}}/>
-                <LineChart
-                  style={styles.chart}
-                  data={this.state.data}
-                  description={{text: ''}}
-                  legend={this.state.legend}
-                  marker={this.state.marker}
-                  xAxis={this.state.xAxis}
-                  yAxis={this.state.yAxis}
-                  animation={{durationX: 2000}}
-                  drawGridBackground={false}
-                  borderColor={processColor('teal')}
-                  borderWidth={1}
-                  drawBorders={true}
-                  touchEnabled={true}
-                  dragEnabled={true}
-                  scaleEnabled={true}
-                  scaleXEnabled={true}
-                  scaleYEnabled={true}
-                  pinchZoom={true}
-                  doubleTapToZoomEnabled={true}
+              <View>
+                <View style={{width:width-20, height:200, flexDirection:'row'}}>
+                  <Icon name="chevron-thin-left" color="#848484" size={40} style={{textAlignVertical:'center', flex:1}}/>
+                  <LineChart
+                    style={styles.chart}
+                    data={this.state.data}
+                    description={{text: ''}}
+                    legend={this.state.legend}
+                    marker={this.state.marker}
+                    xAxis={this.state.xAxis}
+                    yAxis={this.state.yAxis}
+                    animation={{durationX: 2000}}
+                    drawGridBackground={false}
+                    borderColor={processColor('teal')}
+                    borderWidth={1}
+                    drawBorders={true}
+                    touchEnabled={true}
+                    dragEnabled={true}
+                    scaleEnabled={true}
+                    scaleXEnabled={true}
+                    scaleYEnabled={true}
+                    pinchZoom={true}
+                    doubleTapToZoomEnabled={true}
 
-                  dragDecelerationEnabled={true}
-                  dragDecelerationFrictionCoef={0.99}
+                    dragDecelerationEnabled={true}
+                    dragDecelerationFrictionCoef={0.99}
 
-                  keepPositionOnRotation={false}
-                  onSelect={this.handleSelect.bind(this)}
-                />
-                <Icon name="chevron-thin-right" color="#848484" size={40} style={{textAlignVertical:'center', flex:1}}/>
+                    keepPositionOnRotation={false}
+                    onSelect={this.handleSelect.bind(this)}
+                  />
+                  <Icon name="chevron-thin-right" color="#848484" size={40} style={{textAlignVertical:'center', flex:1}}/>
+                </View>
+                <Text style={styles.addDay} onPress={this._showDateTimePicker}>
+                {"+ Add day "}
+                </Text>
               </View>
             }
             {this.state.customStyleIndex === 1 &&
             <Text style={styles.tabContent} > Weekly Chart</Text>}
             {this.state.customStyleIndex === 2 &&
             <Text style={styles.tabContent} > Monthly Chart</Text>}
-        </View>
 
-        <Text style={styles.addDay} onPress={this._showDateTimePicker}>
-        {"+ Add day "}
-        </Text>
+        </View>
 
         <DateTimePicker
           isVisible={this.state.isDateTimePickerVisible}
@@ -417,8 +419,9 @@ const styles = StyleSheet.create({
 
   addDay: {
     color: '#e9a83c',
-    fontSize: 12,
+    fontSize: 15,
     marginLeft: 32,
+    marginTop: 10,
   }
 });
 
