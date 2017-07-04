@@ -197,7 +197,7 @@ class ReportChart extends Component {
             activeTabTextStyle={styles.activeTabTextStyle} />
             {this.state.customStyleIndex === 0 &&
               <View style={{width:width-20, height:250, flexDirection:'row'}}>
-                <Icon name="chevron-thin-left" color="#848484" size={30} style={{textAlignVertical:'center', flex:1}}/>
+                <Icon name="chevron-thin-left" color="#848484" size={40} style={{textAlignVertical:'center', flex:1}}/>
                 <LineChart
                   style={styles.chart}
                   data={this.state.data}
