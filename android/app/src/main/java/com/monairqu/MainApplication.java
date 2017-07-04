@@ -3,6 +3,9 @@ package com.monairqu;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.github.wuxudong.rncharts.MPAndroidChartPackage;
+import fr.aybadb.rnak.RNAKPackage;
+import com.xebia.reactnative.TabLayoutPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.airbnb.android.react.maps.MapsPackage;
 import com.facebook.react.ReactNativeHost;
@@ -25,6 +28,9 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new MPAndroidChartPackage(),
+            new RNAKPackage(),
+            new TabLayoutPackage(),
             new VectorIconsPackage(),
             new MapsPackage()
       );

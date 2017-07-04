@@ -3,7 +3,6 @@
 import React, { Component } from 'react';
 import { Actions } from 'react-native-router-flux';
 import {
-  AppRegistry,
   StyleSheet,
   Text,
   View,
@@ -12,7 +11,6 @@ import {
   TouchableHighlight
 } from 'react-native';
 import MapView from 'react-native-maps';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 
 var {height, width} = Dimensions.get('window');
@@ -21,6 +19,7 @@ class Reports extends Component {
     super(props);
     this.state = {
       isDateTimePickerVisible: false,
+      isStatusPressed: false,
       region: {
         latitude: -7.7712196,
         longitude: 110.3473598,
@@ -97,7 +96,7 @@ class Reports extends Component {
                 {"CANDI BOROBUDUR\nJl. Badrawati, Borobudur,\nMagelang, Jawa Tengah"}
               </Text>
 
-              <TouchableHighlight underlayColor={"rgba(0,0,0,0)"} onPress={this._showDateTimePicker}>
+              <TouchableHighlight underlayColor={"rgba(0,0,0,0)"} onPress={() => Actions.chart()}>
                 <View style={styles.detailBtnContainer}>
                 <Text style={styles.detailBtnText}>
                   Details
@@ -107,14 +106,25 @@ class Reports extends Component {
 
             </View>
             <View style={styles.legendabawah}>
+              <TouchableHighlight onPress={()=>this.toggleStatus()} underlayColor={"rgba(0,0,0,0)"}>
               <Image source={require('../images/group_4.png')}
                 style={styles.imageStatus}/>
+              </TouchableHighlight>
+
+              <TouchableHighlight onPress={()=>this.toggleStatus()} underlayColor={"rgba(0,0,0,0)"}>
               <Image source={require('../images/group_12.png')}
                 style={styles.imageRecommendSelected}/>
+              </TouchableHighlight>
+
+              <TouchableHighlight onPress={()=>this.toggleStatus()} underlayColor={"rgba(0,0,0,0)"}>
               <Image source={require('../images/group_11.png')}
                 style={styles.imageRecommend}/>
+              </TouchableHighlight>
+
+              <TouchableHighlight onPress={()=>this.toggleStatus()} underlayColor={"rgba(0,0,0,0)"}>
               <Image source={require('../images/group_13.png')}
                 style={styles.imageRecommend}/>
+              </TouchableHighlight>
             </View>
           </View>
         </View>
@@ -126,13 +136,15 @@ class Reports extends Component {
           </View>
         </TouchableHighlight>
 
-        <View style={styles.statusDesc}>
-          <Image source={require('../images/group_12.png')}
-            style={styles.imageStatusDesc}/>
-          <Text style={styles.textStatusDesc}>
-            Aman untuk olahraga outdoor
-          </Text>
-        </View>
+        {this.state.isStatusPressed &&
+          <View style={styles.statusDesc}>
+            <Image source={require('../images/group_12.png')}
+              style={styles.imageStatusDesc}/>
+            <Text style={styles.textStatusDesc}>
+              Aman untuk olahraga outdoor
+            </Text>
+          </View>
+        }
 
         <DateTimePicker
           isVisible={this.state.isDateTimePickerVisible}
@@ -145,6 +157,10 @@ class Reports extends Component {
 
   _onPressButton() {
 
+  }
+
+  toggleStatus() {
+    this.setState({ isStatusPressed: !this.state.isStatusPressed});
   }
 
   _showDateTimePicker = () => this.setState({ isDateTimePickerVisible: true });

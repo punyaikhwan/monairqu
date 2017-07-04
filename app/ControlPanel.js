@@ -42,6 +42,12 @@ export default class ControlPanel extends Component {
           }}>
           ReportChart
         </Text>
+        <Text
+          onPress={() => {
+            Actions.tab()
+          }}>
+          Simpletab
+        </Text>
       </View>
     )
   }

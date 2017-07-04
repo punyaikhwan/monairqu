@@ -5,6 +5,8 @@ import Reports from './screens/Reports';
 import Hello from './screens/Hello';
 import styles from './styles';
 import ReportChart from './screens/ReportChart';
+import SimpleTab from './screens/SimpleTab';
+import LineChartScreen from './screens/LineChartScreen';
 
 const drawerStyles = {
   drawer: {
@@ -39,9 +41,10 @@ class App extends Component {
       acceptDoubleTap: false,
       acceptTap: false,
       acceptPan: true,
-      tapToClose: false,
+      tapToClose: true,
       negotiatePan: false,
       side: "left",
+      open: false
     };
   }
   render() {
@@ -73,17 +76,18 @@ class App extends Component {
         negotiatePan={this.state.negotiatePan}
         changeVal={this.state.changeVal}
         side={this.state.side}
-        open={this.state._open}
+        open={this.state.open}
         >
         <Router>
           <Scene key="root" navigationBarStyle={styles.navbarStyle} titleStyle={styles.title} >
-            <Scene key="reportsMap" component={Reports} title="Reports" initial={false} renderBackButton={this.menuButton} renderLeftButton={this.menuButton} renderRightButton={this.groupButton}/>
-            <Scene key="hello" component={Hello} title="Hello" renderBackButton={this.menuButton} renderLeftButton={this.menuButton} renderRightButton={this.groupButton}/>
-            <Scene key="chart" component={ReportChart} title="Reports" initial={true} renderBackButton={this.menuButton} renderLeftButton={this.menuButton} renderRightButton={this.groupButton}/>
+            <Scene key="reportsMap" component={Reports} title="Reports" initial={true} renderBackButton={()=>this.menuButton()} renderLeftButton={()=>this.menuButton()} renderRightButton={this.groupButton}/>
+            <Scene key="chart" component={ReportChart} title="Reports" initial={false} renderBackButton={()=>this.menuButton()} renderLeftButton={()=>this.menuButton()} renderRightButton={this.groupButton}/>
+            <Scene key="tab" component={SimpleTab} title="Tabs" initial={false} renderBackButton={()=>this.menuButton()} renderLeftButton={()=>this.menuButton()} renderRightButton={this.groupButton}/>
+            <Scene key="lineChart" component={LineChartScreen} title="Chart" initial={false} renderBackButton={()=>this.menuButton()} renderLeftButton={()=>this.menuButton()} renderRightButton={this.groupButton}/>
           </Scene>
         </Router>
       </Drawer>
-    )
+    );
   }
 
   tweenHandler(ratio){
@@ -97,16 +101,16 @@ class App extends Component {
     })
   }
 
-  openDrawer(){
+  openDrawer() {
     this.setState({
-      open: "true"
-    })
+      open: true
+    });
   }
 
   closeDrawer(){
     this.setState({
-      open: "false"
-    })
+      open: false
+    });
   }
 
   setStateFrag(frag) {
@@ -115,7 +119,7 @@ class App extends Component {
 
   menuButton(){
     return(
-      <TouchableOpacity onPress={() => {Actions.get('drawer').ref.toggle()}}>
+      <TouchableOpacity onPress={() => this.openDrawer()}>
         <Image
           source={require('./images/menu.png')}
           style={{width:22, height:22, marginLeft: 13.5, marginTop: 20}}/>
