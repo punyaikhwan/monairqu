@@ -25,7 +25,7 @@ class ReportChart extends Component {
       isDateTimePickerVisible: false,
       selectedIndex: 0,
       selectedIndices: [0],
-      customStyleIndex: 0,
+      indexTab: 0,
       data: {},
       legend: {
         enabled: false,
@@ -57,7 +57,7 @@ class ReportChart extends Component {
   handleCustomIndexSelect = (index) => {
       this.setState({
           ...this.state,
-          customStyleIndex: index,
+          indexTab: index,
       });
   }
 
@@ -87,13 +87,16 @@ class ReportChart extends Component {
           $set: {
             valueFormatter: ['18.00','19.00','20.00','21.00','22.00','23.00', '24.00'],
             position: 'BOTTOM',
-            textColor: processColor('white')
+            textColor: processColor('white'),
+            label: "Hari"
           }
         },
         yAxis: {
             $set: {
               left: {
-                textColor: processColor('white')
+                textColor: processColor('white'),
+                axisMinimum: 0,
+                axisMaximum: 100
               },
               right: {
                 enabled: false
@@ -187,7 +190,7 @@ class ReportChart extends Component {
         <View style={styles.tabChart}>
         <SegmentedControlTab
             values={['Daily', 'Weekly', 'Monthly']}
-            selectedIndex={this.state.customStyleIndex}
+            selectedIndex={this.state.indexTab}
             onTabPress={this.handleCustomIndexSelect}
             borderRadius={0}
             tabsContainerStyle={styles.tabsContainerStyle}
@@ -195,7 +198,7 @@ class ReportChart extends Component {
             activeTabStyle={styles.activeTabStyle}
             tabTextStyle={styles.tabTextStyle}
             activeTabTextStyle={styles.activeTabTextStyle} />
-            {this.state.customStyleIndex === 0 &&
+            {this.state.indexTab === 0 &&
               <View>
                 <View style={{width:width-20, height:200, flexDirection:'row'}}>
                   <Icon name="chevron-thin-left" color="#848484" size={40} style={{textAlignVertical:'center', flex:1}}/>
@@ -233,9 +236,9 @@ class ReportChart extends Component {
                 </Text>
               </View>
             }
-            {this.state.customStyleIndex === 1 &&
+            {this.state.indexTab === 1 &&
             <Text style={styles.tabContent} > Weekly Chart</Text>}
-            {this.state.customStyleIndex === 2 &&
+            {this.state.indexTab === 2 &&
             <Text style={styles.tabContent} > Monthly Chart</Text>}
 
         </View>

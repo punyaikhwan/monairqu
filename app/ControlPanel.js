@@ -3,7 +3,7 @@ import {
   SwitchIOS,
   View,
   Text,
-  TouchableOpacity,
+  TouchableHighlight,
   Image
 } from 'react-native';
 import {Actions} from 'react-native-router-flux';
@@ -15,39 +15,39 @@ export default class ControlPanel extends Component {
   render() {
     return (
       <View style={styles.controlPanel}>
-        <Text style={styles.controlPanelWelcome}>
-          Control Panel
-        </Text>
-        <Button
-          onPress={() => {
-            this.props.closeDrawer();
-          }}
-          text="Close Drawer"
-        />
-        <Text
-          onPress={() => {
-            Actions.hello()
-          }}>
-          Hello
-        </Text>
-        <Text
-          onPress={() => {
-            Actions.reportsMap()
-          }}>
-          Map
-        </Text>
-        <Text
-          onPress={() => {
-            Actions.chart()
-          }}>
+        <View style={styles.titleControlPanel}>
+          <Text style={styles.controlPanelWelcome}>
+            AIR SKY
+          </Text>
+        </View>
+        <TouchableHighlight onPress={() => {Actions.hello()}}>
+          <Text style={styles.controlPanelMenu}>
+            Hello
+          </Text>
+        </TouchableHighlight>
+        <TouchableHighlight onPress={() => {Actions.reportsMap()}}>
+          <Text style={styles.controlPanelMenu}>
+            Map
+          </Text>
+        </TouchableHighlight>
+
+        <TouchableHighlight onPress={() => {Actions.chart()}}>
+        <Text style={styles.controlPanelMenu}>
           ReportChart
         </Text>
-        <Text
-          onPress={() => {
-            Actions.tab()
-          }}>
-          Simpletab
+        </TouchableHighlight>
+
+        <TouchableHighlight onPress={() => {Actions.locationList()}}>
+        <Text style={styles.controlPanelMenu}>
+          Location List
         </Text>
+        </TouchableHighlight>
+
+        <TouchableHighlight onPress={() => {Actions.tab()}}>
+        <Text style={styles.controlPanelMenu}>
+          Tab
+        </Text>
+        </TouchableHighlight>
       </View>
     )
   }

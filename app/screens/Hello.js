@@ -1,53 +1,71 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
- */
-
+'use strict';
 import React, { Component } from 'react';
 import {
-  AppRegistry,
-  StyleSheet,
-  Text,
-  View
+    StyleSheet,
+    Text,
+    View,
+    TouchableHighlight,
+    Alert
 } from 'react-native';
 
-export class Hello extends Component {
-  render() {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.ios.js
-        </Text>
-        <Text style={styles.instructions}>
-          Press Cmd+R to reload,{'\n'}
-          Cmd+D or shake for dev menu
-        </Text>
-      </View>
-    );
-  }
+class Hello extends Component{
+
+    _onPressButtonGET() {
+      var sss = "haaiii"
+      fetch('http://api.monairqu.labs.skyshi.com/airquality?sensor_id=abc123&')
+      .then((response) => response.text())
+      .then((responseJson) => {
+        Alert.alert(
+            "GET Response",
+            "Result:"+responseJson
+        );
+        console.log('Result',responseJson)
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    }
+
+    _onPressButtonPOST() {
+        fetch("http://localhost:3000/test", {method: "POST", body: JSON.stringify({username: "nraboy", firstname: "Nic", lastname: "Raboy"})})
+        .then((response) => response.json())
+        .then((responseData) => {
+            Alert.alert(
+                "POST Response",
+                "Response Body -> " + JSON.stringify(responseData.body)
+            )
+        })
+        .done();
+    }
+
+    render() {
+        return (
+            <View style={styles.container}>
+                <TouchableHighlight onPress={this._onPressButtonGET} style={styles.button}>
+                    <Text>GET</Text>
+                </TouchableHighlight>
+                <TouchableHighlight onPress={this._onPressButtonPOST} style={styles.button}>
+                    <Text>POST</Text>
+                </TouchableHighlight>
+            </View>
+        );
+    }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
+var styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#F5FCFF',
+    },
+    button: {
+        backgroundColor: '#eeeeee',
+        padding: 10,
+        marginRight: 5,
+        marginLeft: 5,
+    }
 });
 
 export default Hello;

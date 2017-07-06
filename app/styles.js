@@ -11,7 +11,7 @@ module.exports = StyleSheet.create({
   },
   controlPanel: {
     flex: 1,
-    backgroundColor:'#326945',
+    backgroundColor:'#0c1823',
   },
   controlPanelText: {
     color:'white',
@@ -22,9 +22,8 @@ module.exports = StyleSheet.create({
     margin: 25,
   },
   controlPanelWelcome: {
-    fontSize: 20,
+    fontSize: 24,
     textAlign: 'center',
-    margin: 25,
     color:'white',
     fontWeight:'bold',
   },
@@ -115,5 +114,21 @@ module.exports = StyleSheet.create({
     color: '#fff',
     fontSize: 20,
     marginTop: 10
+  },
+
+  titleControlPanel: {
+    borderBottomColor: '#979797',
+    borderBottomWidth: 1,
+    padding: 18,
+    margin: 20
+  },
+
+  controlPanelMenu: {
+    color: 'white',
+    margin:4,
+    fontSize: 14,
+    marginLeft:40,
+    paddingTop:10,
+    paddingBottom: 10,
   }
 });

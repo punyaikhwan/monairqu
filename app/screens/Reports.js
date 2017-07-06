@@ -20,6 +20,8 @@ class Reports extends Component {
     this.state = {
       isDateTimePickerVisible: false,
       isStatusPressed: false,
+      selectedPlace: 0,
+      selectedImageRecommend: 0,
       region: {
         latitude: -7.7712196,
         longitude: 110.3473598,
@@ -28,11 +30,11 @@ class Reports extends Component {
       },
       markers: [
         {latlng: {latitude: -7.770167, longitude: 110.346807},
-          title: "WEMOS 1", description: "Di sini sensor 1"},
+          title: "WEMOS 1", description: "Di sini sensor 1", quality: 15},
         {latlng: {latitude: -7.772000, longitude: 110.347630},
-          title: "WEMOS 2", description: "Di sini sensor 2"},
+          title: "WEMOS 2", description: "Di sini sensor 2", quality: 75},
         {latlng: {latitude: -7.773316, longitude: 110.344091},
-          title: "WEMOS 3", description: "Di sini sensor 3"},
+          title: "WEMOS 3", description: "Di sini sensor 3", quality: 20},
       ]
     };
     this.onRegionChange = this.onRegionChange.bind(this);
@@ -69,19 +71,59 @@ class Reports extends Component {
           onRegionChange={this.onRegionChange}
         >
         {this.state.markers.map((marker,i) => (
+          console.log('selectedPlace:',this.state.selectedPlace),
+          console.log('placeRendered:', i),
           <MapView.Marker
             key = {i}
             coordinate={marker.latlng}
             title={marker.title}
             description={marker.description}
+            onPress={ () => this._onSelectPlace(i)}
           >
-            <TouchableHighlight underlayColor={"rgba(0,0,0,0)"} onPress={this._onPressButton}>
-              <View style={styles.percentageContainer}>
+          {this.state.selectedPlace == i && marker.quality <= 35 &&
+            <TouchableHighlight underlayColor={"rgba(0,0,0,0)"} onPress={ () => console.log(i)}>
+              <View style={styles.selectedPercentageRedContainer}>
                 <Text style={styles.percentageText}>
-                  {"15%"}
+                  {marker.quality+"%"}
                 </Text>
               </View>
             </TouchableHighlight>
+          }
+          {this.state.selectedPlace == i && marker.quality > 35 && marker.quality <=70 &&
+            <View style={styles.selectedPercentageYellowContainer}>
+              <Text style={styles.percentageText}>
+                {marker.quality+"%"}
+              </Text>
+            </View>
+          }
+          {this.state.selectedPlace == i && marker.quality > 70 && marker.quality <=100 &&
+            <View style={styles.selectedPercentageBlueContainer}>
+              <Text style={styles.percentageText}>
+                {marker.quality+"%"}
+              </Text>
+            </View>
+          }
+          {this.state.selectedPlace != i && marker.quality <= 35 &&
+            <View style={styles.percentageRedContainer}>
+              <Text style={styles.percentageText}>
+                {marker.quality+"%"}
+              </Text>
+            </View>
+          }
+          {this.state.selectedPlace != i && marker.quality > 35 && marker.quality <= 70 &&
+            <View style={styles.percentageYellowContainer}>
+              <Text style={styles.percentageText}>
+                {marker.quality+"%"}
+              </Text>
+            </View>
+          }
+          {this.state.selectedPlace != i && marker.quality > 70 && marker.quality <=100 &&
+            <View style={styles.percentageBlueContainer}>
+              <Text style={styles.percentageText}>
+                {marker.quality+"%"}
+              </Text>
+            </View>
+          }
           </MapView.Marker>
         ))}
         </MapView>
@@ -111,19 +153,19 @@ class Reports extends Component {
                 style={styles.imageStatus}/>
               </TouchableHighlight>
 
-              <TouchableHighlight onPress={()=>this.toggleStatus()} underlayColor={"rgba(0,0,0,0)"}>
+              <TouchableHighlight onPress={()=>this.toggleStatus(0)} underlayColor={"rgba(0,0,0,0)"}>
               <Image source={require('../images/group_12.png')}
-                style={styles.imageRecommendSelected}/>
+                style={this.state.selectedImageRecommend === 0 ? styles.imageRecommendSelected : styles.imageRecommend}/>
               </TouchableHighlight>
 
-              <TouchableHighlight onPress={()=>this.toggleStatus()} underlayColor={"rgba(0,0,0,0)"}>
+              <TouchableHighlight onPress={()=>this.toggleStatus(1)} underlayColor={"rgba(0,0,0,0)"}>
               <Image source={require('../images/group_11.png')}
-                style={styles.imageRecommend}/>
+                style={this.state.selectedImageRecommend === 1 ? styles.imageRecommendSelected : styles.imageRecommend}/>
               </TouchableHighlight>
 
-              <TouchableHighlight onPress={()=>this.toggleStatus()} underlayColor={"rgba(0,0,0,0)"}>
+              <TouchableHighlight onPress={()=>this.toggleStatus(2)} underlayColor={"rgba(0,0,0,0)"}>
               <Image source={require('../images/group_13.png')}
-                style={styles.imageRecommend}/>
+                style={this.state.selectedImageRecommend === 2 ? styles.imageRecommendSelected : styles.imageRecommend}/>
               </TouchableHighlight>
             </View>
           </View>
@@ -136,7 +178,7 @@ class Reports extends Component {
           </View>
         </TouchableHighlight>
 
-        {this.state.isStatusPressed &&
+        {this.state.isStatusPress &&
           <View style={styles.statusDesc}>
             <Image source={require('../images/group_12.png')}
               style={styles.imageStatusDesc}/>
@@ -159,8 +201,14 @@ class Reports extends Component {
 
   }
 
-  toggleStatus() {
+  _onSelectPlace(i) {
+    this.setState({selectedPlace: i});
+    console.log('i:',i);
+  }
+
+  toggleStatus(i) {
     this.setState({ isStatusPressed: !this.state.isStatusPressed});
+    this.setState({ selectedImageRecommend: i})
   }
 
   _showDateTimePicker = () => this.setState({ isDateTimePickerVisible: true });
@@ -184,7 +232,8 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     width:width,
-    flex:1
+    flex:1,
+    zIndex:-1
   },
   legenda: {
     width:width,
@@ -270,28 +319,72 @@ const styles = StyleSheet.create({
     height:20,
     margin: 20
   },
-  percentageContainer: {
+
+  percentageRedContainer: {
     width: 60,
     height: 60,
     borderRadius: 100,
-    borderWidth:2,
-    backgroundColor:'#f6a623'
+    backgroundColor:'rgba(255,0,0,0.6)',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+
+  selectedPercentageRedContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 100,
+    borderWidth:6,
+    borderColor: 'rgba(0,0,0,0.6)',
+    backgroundColor:'rgba(255,0,0,0.6)',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+
+  percentageYellowContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 100,
+    backgroundColor:'rgba(246,166,35,0.6)',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+
+  selectedPercentageYellowContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 100,
+    borderWidth:6,
+    borderColor: 'rgba(0,0,0,0.6)',
+    backgroundColor:'rgba(246,166,35,0.6)',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+
+  percentageBlueContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 100,
+    backgroundColor:'rgba(73,144,226,0.6)',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+
+  selectedPercentageBlueContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 100,
+    borderWidth:6,
+    borderColor: 'rgba(0,0,0,0.6)',
+    backgroundColor:'rgba(73,144,226,0.6)',
+    alignItems: 'center',
+    justifyContent: 'center'
   },
 
   percentageText: {
-    fontSize:16,
+    fontSize:20,
     color: 'white',
-    marginTop: 15,
-    marginLeft: 15
   },
 
-  percentageContainerSelected: {
-    width: 60,
-    height: 60,
-    borderRadius: 100,
-    borderWidth:6,
-    backgroundColor:'#f6a623'
-  },
   statusDesc: {
     marginLeft: 36,
     marginRight: 36,

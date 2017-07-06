@@ -169,7 +169,7 @@ class SimpleTab extends Component {
                     borderRadius={0}
                     tabsContainerStyle={{ height: 50, backgroundColor: '#F2F2F2' }}
                     tabStyle={{ backgroundColor: '#F2F2F2', borderWidth: 0 }}
-                    activeTabStyle={{ backgroundColor: 'white', marginTop: 2 }}
+                    activeTabStyle={{ backgroundColor: 'white', marginTop: 2, borderBottomWidth:2 }}
                     tabTextStyle={{ color: '#444444', fontWeight: 'bold' }}
                     activeTabTextStyle={{ color: '#888888' }} />
                     {this.state.customStyleIndex === 0 &&
