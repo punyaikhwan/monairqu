@@ -8,12 +8,33 @@ import {
   View,
   Dimensions,
   Image,
-  TouchableHighlight
+  TouchableHighlight,
+  ScrollView
 } from 'react-native';
 import MapView from 'react-native-maps';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 
 var {height, width} = Dimensions.get('window');
+//Status Text
+var statusRedText= "Bahaya";
+var statusOrangeText= "Buruk";
+var statusYellowText= "Sedang";
+var statusBlueText= "Baik";
+
+//Warna
+var red = "rgb(208,2,27)";
+var yellow = "rgb(246,215,35)";
+var orange = "rgb(246, 166, 35)";
+var blue ="rgb(137,191,255)";
+var reddark = "rgb(169, 4, 24)";
+var yellowdark = "rgb(255, 186, 63)";
+var orangedark = "rgb(230, 152, 22)";
+var bluedark = "rgb(73, 144, 226)";
+var redtrans = "rgba(208,2,27,0.6)";
+var yellowtrans = "rgba(246,215,35,0.6)";
+var orangetrans = "rgba(246, 166, 35,0.6)";
+var bluetrans ="rgba(137,191,255,0.6)";
+
 class Reports extends Component {
   constructor(props) {
     super(props);
@@ -21,7 +42,12 @@ class Reports extends Component {
       isDateTimePickerVisible: false,
       isStatusPressed: false,
       selectedPlace: 0,
-      selectedImageRecommend: 0,
+      selectedImageRecommend: null,
+      textLocation: "",
+      run: 0,
+      bycicle: 0,
+      baby: 0,
+      status: 0,
       region: {
         latitude: -7.7712196,
         longitude: 110.3473598,
@@ -34,12 +60,15 @@ class Reports extends Component {
         {latlng: {latitude: -7.772000, longitude: 110.347630},
           title: "WEMOS 2", description: "Di sini sensor 2", quality: 75},
         {latlng: {latitude: -7.773316, longitude: 110.344091},
-          title: "WEMOS 3", description: "Di sini sensor 3", quality: 20},
+          title: "WEMOS 3", description: "Di sini sensor 3", quality: 100},
       ]
     };
     this.onRegionChange = this.onRegionChange.bind(this);
   }
 
+  componentWillMount() {
+    this._onSelectPlace(0, this.state.markers[0].latlng.latitude, this.state.markers[0].latlng.longitude, this.state.markers[0].quality);
+  }
   componentDidMount() {
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -68,8 +97,9 @@ class Reports extends Component {
           showCompass={true}
           showsMyLocationButton={true}
           region={this.state.region}
-          onRegionChange={this.onRegionChange}
         >
+
+
         {this.state.markers.map((marker,i) => (
           console.log('selectedPlace:',this.state.selectedPlace),
           console.log('placeRendered:', i),
@@ -78,7 +108,7 @@ class Reports extends Component {
             coordinate={marker.latlng}
             title={marker.title}
             description={marker.description}
-            onPress={ () => this._onSelectPlace(i)}
+            onPress={ () => this._onSelectPlace(i, marker.latlng.latitude, marker.latlng.longitude, marker.quality)}
           >
           {this.state.selectedPlace == i && marker.quality <= 35 &&
             <TouchableHighlight underlayColor={"rgba(0,0,0,0)"} onPress={ () => console.log(i)}>
@@ -89,14 +119,21 @@ class Reports extends Component {
               </View>
             </TouchableHighlight>
           }
-          {this.state.selectedPlace == i && marker.quality > 35 && marker.quality <=70 &&
+          {this.state.selectedPlace == i && marker.quality > 35 && marker.quality <=60 &&
+            <View style={styles.selectedPercentageOrangeContainer}>
+              <Text style={styles.percentageText}>
+                {marker.quality+"%"}
+              </Text>
+            </View>
+          }
+          {this.state.selectedPlace == i && marker.quality > 60 && marker.quality <=80 &&
             <View style={styles.selectedPercentageYellowContainer}>
               <Text style={styles.percentageText}>
                 {marker.quality+"%"}
               </Text>
             </View>
           }
-          {this.state.selectedPlace == i && marker.quality > 70 && marker.quality <=100 &&
+          {this.state.selectedPlace == i && marker.quality > 80 && marker.quality <=100 &&
             <View style={styles.selectedPercentageBlueContainer}>
               <Text style={styles.percentageText}>
                 {marker.quality+"%"}
@@ -110,14 +147,21 @@ class Reports extends Component {
               </Text>
             </View>
           }
-          {this.state.selectedPlace != i && marker.quality > 35 && marker.quality <= 70 &&
+          {this.state.selectedPlace != i && marker.quality > 35 && marker.quality <= 60 &&
+            <View style={styles.percentageOrangeontainer}>
+              <Text style={styles.percentageText}>
+                {marker.quality+"%"}
+              </Text>
+            </View>
+          }
+          {this.state.selectedPlace != i && marker.quality > 60 && marker.quality <=80 &&
             <View style={styles.percentageYellowContainer}>
               <Text style={styles.percentageText}>
                 {marker.quality+"%"}
               </Text>
             </View>
           }
-          {this.state.selectedPlace != i && marker.quality > 70 && marker.quality <=100 &&
+          {this.state.selectedPlace != i && marker.quality > 80 && marker.quality <=100 &&
             <View style={styles.percentageBlueContainer}>
               <Text style={styles.percentageText}>
                 {marker.quality+"%"}
@@ -133,12 +177,14 @@ class Reports extends Component {
             style={styles.imageLoc}/>
           <View style={styles.legendakanan}>
             <View style={styles.legendaatas}>
-
-              <Text style={styles.textLoc}>
-                {"CANDI BOROBUDUR\nJl. Badrawati, Borobudur,\nMagelang, Jawa Tengah"}
-              </Text>
-
-              <TouchableHighlight underlayColor={"rgba(0,0,0,0)"} onPress={() => Actions.chart()}>
+            <View style={styles.textLocContainer}>
+              <ScrollView style={{flex:1}}>
+                <Text style={styles.textLoc}>
+                  {this.state.textLocation}
+                </Text>
+              </ScrollView>
+            </View>
+              <TouchableHighlight style={styles.detailBtn} underlayColor={"rgba(0,0,0,0)"} onPress={() => Actions.chart()}>
                 <View style={styles.detailBtnContainer}>
                 <Text style={styles.detailBtnText}>
                   Details
@@ -148,23 +194,56 @@ class Reports extends Component {
 
             </View>
             <View style={styles.legendabawah}>
-              <TouchableHighlight onPress={()=>this.toggleStatus()} underlayColor={"rgba(0,0,0,0)"}>
-              <Image source={require('../images/group_4.png')}
-                style={styles.imageStatus}/>
-              </TouchableHighlight>
+              {this.state.status === 3 &&
+                <View style={styles.statusRedContainer}>
+                  <Text style={styles.statusText}>
+                    {statusRedText}
+                  </Text>
+                </View>
+              }
+              {this.state.status === 2 &&
+                <View style={styles.statusOrangeContainer}>
+                  <Text style={styles.statusText}>
+                    {statusOrangeText}
+                  </Text>
+                </View>
+              }
+              {this.state.status === 1 &&
+                <View style={styles.statusYellowContainer}>
+                  <Text style={styles.statusText}>
+                    {statusYellowText}
+                  </Text>
+                </View>
+              }
+              {this.state.status === 0 &&
+                <View style={styles.statusBlueContainer}>
+                  <Text style={styles.statusText}>
+                    {statusBlueText}
+                  </Text>
+                </View>
+              }
 
               <TouchableHighlight onPress={()=>this.toggleStatus(0)} underlayColor={"rgba(0,0,0,0)"}>
-              <Image source={require('../images/group_12.png')}
+              <Image source={this.state.run === 0 ? require('../images/run_blue.png') :
+                (this.state.run === 1 ? require('../images/run_yellow.png'):
+                (this.state.run === 2 ? require('../images/run_orange.png') :
+                require('../images/run_red.png')))}
                 style={this.state.selectedImageRecommend === 0 ? styles.imageRecommendSelected : styles.imageRecommend}/>
               </TouchableHighlight>
 
               <TouchableHighlight onPress={()=>this.toggleStatus(1)} underlayColor={"rgba(0,0,0,0)"}>
-              <Image source={require('../images/group_11.png')}
+              <Image source={this.state.bycicle === 0 ? require('../images/bycicle_blue.png') :
+                (this.state.bycicle === 1 ? require('../images/bycicle_yellow.png'):
+                (this.state.bycicle === 2 ? require('../images/bycicle_orange.png'):
+                require('../images/bycicle_red.png')))}
                 style={this.state.selectedImageRecommend === 1 ? styles.imageRecommendSelected : styles.imageRecommend}/>
               </TouchableHighlight>
 
               <TouchableHighlight onPress={()=>this.toggleStatus(2)} underlayColor={"rgba(0,0,0,0)"}>
-              <Image source={require('../images/group_13.png')}
+              <Image source={this.state.baby === 0 ? require('../images/baby_blue.png') :
+                (this.state.baby === 1 ? require('../images/baby_yellow.png'):
+                (this.state.baby === 2 ? require('../images/baby_orange.png'):
+                require('../images/baby_red.png')))}
                 style={this.state.selectedImageRecommend === 2 ? styles.imageRecommendSelected : styles.imageRecommend}/>
               </TouchableHighlight>
             </View>
@@ -178,21 +257,62 @@ class Reports extends Component {
           </View>
         </TouchableHighlight>
 
-        {this.state.isStatusPress &&
-          <View style={styles.statusDesc}>
-            <Image source={require('../images/group_12.png')}
-              style={styles.imageStatusDesc}/>
-            <Text style={styles.textStatusDesc}>
-              Aman untuk olahraga outdoor
-            </Text>
-          </View>
+        {this.state.selectedImageRecommend === 0 && this.state.isStatusPressed &&
+        <View style={this.state.run === 0 ? styles.recommendBlueDesc : (
+          this.state.run === 1 ? styles.recommendYellowDesc : (
+          this.state.run === 2 ? styles.recommendOrangeDesc :
+          styles.recommendRedDesc))}>
+          <Image source={this.state.run === 0 ? require('../images/run_blue.png'): (
+            this.state.run === 1 ? require('../images/run_yellow.png'): (
+            this.state.run === 2 ? require('../images/run_orange.png'):
+            require('../images/run_red.png')))}
+            style={styles.imageRecommendDesc}/>
+          <Text style={styles.textRecommendDesc}>
+            {(this.state.run === 0 ? "baik" : (
+            this.state.run === 1 ? "aman" : (
+            this.state.run === 2 ? "tidak disarankan" :
+            "berbahaya")))+" untuk olahraga"}
+          </Text>
+        </View>
         }
 
-        <DateTimePicker
-          isVisible={this.state.isDateTimePickerVisible}
-          onConfirm={this._handleDatePicked}
-          onCancel={this._hideDateTimePicker}
-        />
+        {this.state.selectedImageRecommend === 1 && this.state.isStatusPressed &&
+        <View style={this.state.bycicle === 0 ? styles.recommendBlueDesc : (
+          this.state.bycicle === 1 ? styles.recommendYellowDesc : (
+          this.state.bycicle === 2 ? styles.recommendOrangeDesc :
+          styles.recommendRedDesc))}>
+          <Image source={this.state.bycicle === 0 ? require('../images/bycicle_blue.png'): (
+            this.state.bycicle === 1 ? require('../images/bycicle_yellow.png'): (
+            this.state.bycicle === 2 ? require('../images/bycicle_orange.png'):
+            require('../images/bycicle_red.png')))}
+            style={styles.imageRecommendDesc}/>
+          <Text style={styles.textRecommendDesc}>
+            {(this.state.bycicle === 0 ? "baik" : (
+            this.state.bycicle === 1 ? "aman" : (
+            this.state.bycicle === 2 ? "tidak disarankan" :
+            "berbahaya")))+" untuk bersepeda"}
+          </Text>
+        </View>
+        }
+
+        {this.state.selectedImageRecommend === 2 && this.state.isStatusPressed &&
+        <View style={this.state.baby === 0 ? styles.recommendBlueDesc : (
+          this.state.baby === 1 ? styles.recommendYellowDesc : (
+          this.state.baby === 2 ? styles.recommendOrangeDesc :
+          styles.recommendRedDesc))}>
+          <Image source={this.state.baby === 0 ? require('../images/baby_blue.png'): (
+            this.state.baby === 1 ? require('../images/baby_yellow.png'): (
+            this.state.baby === 2 ? require('../images/baby_orange.png'):
+            require('../images/baby_red.png')))}
+            style={styles.imageRecommendDesc}/>
+          <Text style={styles.textRecommendDesc}>
+            {(this.state.baby === 0 ? "baik" : (
+            this.state.baby === 1 ? "aman" : (
+            this.state.baby === 2 ? "tidak disarankan" :
+            "berbahaya")))+" untuk membawa anak"}
+          </Text>
+        </View>
+        }
       </View>
     );
   }
@@ -201,14 +321,84 @@ class Reports extends Component {
 
   }
 
-  _onSelectPlace(i) {
+  getAddress(lat, lng) {
+
+  }
+
+  _onSelectPlace(i, lat, lng, quality) {
     this.setState({selectedPlace: i});
-    console.log('i:',i);
+    //getAddress
+    fetch("http://maps.googleapis.com/maps/api/geocode/json?latlng="+lat+","+lng+"&sensor=true")
+    .then((response) => response.json())
+    .then((response) => {
+      this.setState({textLocation:response.results[0].formatted_address});
+     })
+    .catch((error) => {
+      console.error(error);
+    });
+
+
+    //Untuk baby
+    if (quality <= 40) {
+      this.setState({baby: 3}); //bahaya
+    } else
+    if (quality > 40 && quality <= 60) {
+      this.setState({baby: 2});
+    } else
+    if (quality > 60 && quality <= 90) {
+      this.setState({baby: 1});
+    } else {
+      this.setState({baby:0});
+    }
+
+    //untuk run
+    if (quality <= 30) {
+      this.setState({run: 3}); //bahaya
+    } else
+    if (quality > 30 && quality <= 50) {
+      this.setState({run: 2});
+    } else
+    if (quality > 50 && quality <= 80) {
+      this.setState({run: 1});
+    } else {
+      this.setState({run:0});
+    }
+
+    //untuk bycicle
+    if (quality <= 30) {
+      this.setState({bycicle: 3}); //bahaya
+    } else
+    if (quality > 30 && quality <= 50) {
+      this.setState({bycicle: 2});
+    } else
+    if (quality > 50 && quality <= 65) {
+      this.setState({bycicle: 1});
+    } else {
+      this.setState({bycicle:0});
+    }
+
+    //untuk status umum
+    if (quality <= 35) {
+      this.setState({status: 3}); //bahaya
+    } else
+    if (quality > 35 && quality <= 60) {
+      this.setState({status: 2});
+    } else
+    if (quality > 60 && quality <= 80) {
+      this.setState({status: 1});
+    } else {
+      this.setState({status:0});
+    }
   }
 
   toggleStatus(i) {
-    this.setState({ isStatusPressed: !this.state.isStatusPressed});
-    this.setState({ selectedImageRecommend: i})
+    if (this.state.selectedImageRecommend === i ) {
+      this.setState({isStatusPressed: !this.state.isStatusPressed});
+      this.setState({selectedImageRecommend: null});
+    } else {
+      this.setState({isStatusPressed: true});
+      this.setState({ selectedImageRecommend: i});
+    }
   }
 
   _showDateTimePicker = () => this.setState({ isDateTimePickerVisible: true });
@@ -247,7 +437,8 @@ const styles = StyleSheet.create({
     width:88,
     height:88,
     marginLeft:14,
-    marginTop:11
+    marginTop:11,
+    flex: 1
   },
   imageStatus: {
     width:79,
@@ -260,49 +451,60 @@ const styles = StyleSheet.create({
     width:34,
     height:34,
     marginLeft:16,
-    marginTop:11
   },
   imageRecommendSelected: {
     width:34,
     height:34,
     marginLeft:16,
-    marginTop:11,
     borderColor: 'white',
     borderWidth: 3,
     borderRadius: 34
   },
   legendakanan:{
-    flexDirection:"column"
+    flexDirection:"column",
+    flex: 3
   },
   legendaatas:{
-    flexDirection:"row"
+    flexDirection:"row",
+    flex: 5
   },
   legendabawah:{
-    flexDirection:"row"
+    flexDirection:"row",
+    flex: 3
   },
+
+  textLocContainer: {
+    flex: 3
+  },
+
   textLoc:{
     fontSize:12,
     color: 'white',
     marginLeft: 10,
-    marginTop: 11
+    marginTop: 11,
+    flex: 1
+  },
+  detailBtn: {
+    flex: 2
   },
 
   detailBtnText: {
     fontSize: 14,
     color: "#319bf5",
-    paddingTop: 10,
-    paddingBottom:10,
-    paddingLeft: 20,
-    paddingRight: 20
   },
+
   detailBtnContainer: {
     borderRadius: 100,
     borderColor: "#319bf5",
     borderWidth:2,
     backgroundColor:"transparent",
-    marginLeft: 18,
-    marginTop: 11
+    marginTop: 11,
+    width: 78.8,
+    height: 33.8,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
+
   mylocBtn: {
     marginLeft:width-90,
     marginTop:height-110,
@@ -324,7 +526,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 100,
-    backgroundColor:'rgba(255,0,0,0.6)',
+    backgroundColor:redtrans,
     alignItems: 'center',
     justifyContent: 'center'
   },
@@ -335,7 +537,7 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     borderWidth:6,
     borderColor: 'rgba(0,0,0,0.6)',
-    backgroundColor:'rgba(255,0,0,0.6)',
+    backgroundColor:redtrans,
     alignItems: 'center',
     justifyContent: 'center'
   },
@@ -344,7 +546,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 100,
-    backgroundColor:'rgba(246,166,35,0.6)',
+    backgroundColor:yellowtrans,
     alignItems: 'center',
     justifyContent: 'center'
   },
@@ -355,16 +557,35 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     borderWidth:6,
     borderColor: 'rgba(0,0,0,0.6)',
-    backgroundColor:'rgba(246,166,35,0.6)',
+    backgroundColor:yellowtrans,
     alignItems: 'center',
     justifyContent: 'center'
   },
 
+  percentageOrangeContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 100,
+    backgroundColor:orangetrans,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+
+  selectedPercentageOrangeContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 100,
+    borderWidth:6,
+    borderColor: 'rgba(0,0,0,0.6)',
+    backgroundColor:orangetrans,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
   percentageBlueContainer: {
     width: 60,
     height: 60,
     borderRadius: 100,
-    backgroundColor:'rgba(73,144,226,0.6)',
+    backgroundColor:bluetrans,
     alignItems: 'center',
     justifyContent: 'center'
   },
@@ -375,7 +596,7 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     borderWidth:6,
     borderColor: 'rgba(0,0,0,0.6)',
-    backgroundColor:'rgba(73,144,226,0.6)',
+    backgroundColor:bluetrans,
     alignItems: 'center',
     justifyContent: 'center'
   },
@@ -385,23 +606,98 @@ const styles = StyleSheet.create({
     color: 'white',
   },
 
-  statusDesc: {
+  statusRedContainer: {
+    width: 78.8,
+    height: 33.8,
+    backgroundColor: red,
+    borderRadius: 34,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft:16,
+  },
+  statusOrangeContainer: {
+    width: 78.8,
+    height: 33.8,
+    backgroundColor: orange,
+    borderRadius: 34,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft:16,
+  },
+  statusYellowContainer: {
+    width: 78.8,
+    height: 33.8,
+    backgroundColor: yellow,
+    borderRadius: 34,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft:16,
+  },
+  statusBlueContainer: {
+    width: 78.8,
+    height: 33.8,
+    backgroundColor: blue,
+    borderRadius: 34,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft:16,
+  },
+
+  statusText: {
+    color: 'white',
+    fontSize: 16,
+  },
+
+  recommendRedDesc: {
     marginLeft: 36,
     marginRight: 36,
     marginTop: 191.8,
     width: width-72,
     flexDirection: "row",
-    backgroundColor: "#4990e2",
+    backgroundColor: reddark,
     borderRadius: 34,
-    position: 'absolute'
+    position: 'absolute',
   },
 
-  imageStatusDesc: {
+  recommendOrangeDesc: {
+    marginLeft: 36,
+    marginRight: 36,
+    marginTop: 191.8,
+    width: width-72,
+    flexDirection: "row",
+    backgroundColor: orangedark,
+    borderRadius: 34,
+    position: 'absolute',
+  },
+
+  recommendYellowDesc: {
+    marginLeft: 36,
+    marginRight: 36,
+    marginTop: 191.8,
+    width: width-72,
+    flexDirection: "row",
+    backgroundColor: yellowdark,
+    borderRadius: 34,
+    position: 'absolute',
+  },
+
+  recommendBlueDesc: {
+    marginLeft: 36,
+    marginRight: 36,
+    marginTop: 191.8,
+    width: width-72,
+    flexDirection: "row",
+    backgroundColor: bluedark,
+    borderRadius: 34,
+    position: 'absolute',
+  },
+
+  imageRecommendDesc: {
     width: 34,
     height: 34
   },
 
-  textStatusDesc: {
+  textRecommendDesc: {
     color: 'white',
     fontSize: 16,
     textAlign: 'center',

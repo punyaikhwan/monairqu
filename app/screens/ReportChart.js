@@ -143,11 +143,11 @@ class ReportChart extends Component {
         <View style={styles.statusArea}>
           <Image source={require('../images/group_4.png')}
             style={styles.imageStatus}/>
-          <Image source={require('../images/group_12.png')}
+          <Image source={require('../images/run_blue.png')}
             style={styles.imageRecommendSelected}/>
-          <Image source={require('../images/group_11.png')}
+          <Image source={require('../images/bycicle_yellow.png')}
             style={styles.imageRecommend}/>
-          <Image source={require('../images/group_13.png')}
+          <Image source={require('../images/baby_orange.png')}
             style={styles.imageRecommend}/>
         </View>
 

@@ -9,18 +9,18 @@ import {
 } from 'react-native';
 
 class Hello extends Component{
-
+    constructor(props) {
+      super(props);
+      this.state = {
+        tempat: "hhaaaii"
+      }
+    }
     _onPressButtonGET() {
-      var sss = "haaiii"
-      fetch('http://api.monairqu.labs.skyshi.com/airquality?sensor_id=abc123&')
-      .then((response) => response.text())
-      .then((responseJson) => {
-        Alert.alert(
-            "GET Response",
-            "Result:"+responseJson
-        );
-        console.log('Result',responseJson)
-      })
+      fetch('http://maps.googleapis.com/maps/api/geocode/json?latlng=-7.7712973,110.3449107&sensor=true')
+      .then((response) => response.json())
+      .then((response) => {
+        this.setState({tempat:response.results[0].formatted_address});
+       })
       .catch((error) => {
         console.error(error);
       });
@@ -41,12 +41,15 @@ class Hello extends Component{
     render() {
         return (
             <View style={styles.container}>
-                <TouchableHighlight onPress={this._onPressButtonGET} style={styles.button}>
+                <TouchableHighlight onPress={() =>this._onPressButtonGET()} style={styles.button}>
                     <Text>GET</Text>
                 </TouchableHighlight>
                 <TouchableHighlight onPress={this._onPressButtonPOST} style={styles.button}>
                     <Text>POST</Text>
                 </TouchableHighlight>
+                <Text>
+                  {this.state.tempat}
+                </Text>
             </View>
         );
     }
