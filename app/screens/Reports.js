@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import MapView from 'react-native-maps';
 import DateTimePicker from 'react-native-modal-datetime-picker';
+import update from 'immutability-helper';
 
 var {height, width} = Dimensions.get('window');
 //Status Text
@@ -42,6 +43,7 @@ class Reports extends Component {
       isDateTimePickerVisible: false,
       isStatusPressed: false,
       selectedPlace: 0,
+      sensorId: null,
       selectedImageRecommend: null,
       textLocation: "",
       run: 0,
@@ -55,12 +57,12 @@ class Reports extends Component {
         longitudeDelta: 0.0121,
       },
       markers: [
-        {latlng: {latitude: -7.770167, longitude: 110.346807},
-          title: "WEMOS 1", description: "Di sini sensor 1", quality: 15},
-        {latlng: {latitude: -7.772000, longitude: 110.347630},
-          title: "WEMOS 2", description: "Di sini sensor 2", quality: 75},
-        {latlng: {latitude: -7.773316, longitude: 110.344091},
-          title: "WEMOS 3", description: "Di sini sensor 3", quality: 100},
+        {sensorId: "abc123", latlng: {latitude: -7.770167, longitude: 110.346807},
+          description: "Di sini sensor 1", quality: 15},
+        {sensorId: "abc124", latlng: {latitude: -7.772000, longitude: 110.347630},
+          description: "Di sini sensor 2", quality: 75},
+        {sensorId: "abc125", latlng: {latitude: -7.773316, longitude: 110.344091},
+          description: "Di sini sensor 3", quality: 100},
       ]
     };
     this.onRegionChange = this.onRegionChange.bind(this);
@@ -69,6 +71,7 @@ class Reports extends Component {
   componentWillMount() {
     this._onSelectPlace(0, this.state.markers[0].latlng.latitude, this.state.markers[0].latlng.longitude, this.state.markers[0].quality);
   }
+  
   componentDidMount() {
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -101,12 +104,10 @@ class Reports extends Component {
 
 
         {this.state.markers.map((marker,i) => (
-          console.log('selectedPlace:',this.state.selectedPlace),
-          console.log('placeRendered:', i),
           <MapView.Marker
             key = {i}
             coordinate={marker.latlng}
-            title={marker.title}
+            title={marker.sensorId}
             description={marker.description}
             onPress={ () => this._onSelectPlace(i, marker.latlng.latitude, marker.latlng.longitude, marker.quality)}
           >
@@ -184,7 +185,7 @@ class Reports extends Component {
                 </Text>
               </ScrollView>
             </View>
-              <TouchableHighlight style={styles.detailBtn} underlayColor={"rgba(0,0,0,0)"} onPress={() => Actions.chart()}>
+              <TouchableHighlight style={styles.detailBtn} underlayColor={"rgba(0,0,0,0)"} onPress={() => Actions.chart({sensorId: this.state.sensorId, textLocation: this.state.textLocation})}>
                 <View style={styles.detailBtnContainer}>
                 <Text style={styles.detailBtnText}>
                   Details
@@ -327,6 +328,18 @@ class Reports extends Component {
 
   _onSelectPlace(i, lat, lng, quality) {
     this.setState({selectedPlace: i});
+    this.setState({sensorId: this.state.markers[i].sensorId});
+
+    this.setState({
+      region: {
+        latitude: lat,
+        longitude: lng,
+        longitudeDelta: this.state.region.longitudeDelta,
+        latitudeDelta: this.state.region.latitudeDelta
+      }
+    });
+    console.log(this.state.region.latitude, this.state.region.longitude);
+
     //getAddress
     fetch("http://maps.googleapis.com/maps/api/geocode/json?latlng="+lat+","+lng+"&sensor=true")
     .then((response) => response.json())
