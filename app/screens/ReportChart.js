@@ -10,7 +10,8 @@ import {
   Image,
   processColor,
   Alert,
-  TouchableHighlight
+  TouchableHighlight,
+  AsyncStorage
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Entypo';
 import DateTimePicker from 'react-native-modal-datetime-picker';
@@ -67,6 +68,9 @@ class ReportChart extends Component {
       day: dateFormat(date, "dd"),
       month: dateFormat(date, "mmm"),
       year: dateFormat(date, "yyyy"),
+      hour: dateFormat(date, "HH"),
+      daySelected: null,
+      weekSelected: null,
       dateUp: dateUp,
       dateDown: dateDown,
       selectedIndex: 0,
@@ -74,7 +78,9 @@ class ReportChart extends Component {
       indexTab: 0,
       data: {},
       selectedImageRecommend: null,
-      quality: this.props.quality,
+      quality: null,
+      co: null,
+      temperature: null,
       run: 0,
       bycicle: 0,
       baby: 0,
@@ -105,16 +111,42 @@ class ReportChart extends Component {
       },
       statusquality: {
           sensorId: "abc123",
-          day: [
-            {y:90}, {y:87}, {y:80}, {y:78}, {y:80}, {y:75}, {y:68}, {y:65}, {y:60}, {y:65}, {y:70}, {y:65},
-            {y:50}, {y:60}, {y:55}, {y:65}, {y:70}, {y:78}, {y:85}, {y:85}, {y:86}, {y:80}, {y:85}, {y:90}
-          ],
-          week: [
-            {y:80}, {y:70}, {y:70}, {y:80}, {y:60}, {y:55}, {y:82}
-          ],
-          month: [
-            {y:80}, {y:80}, {y:75}, {y:70}
-          ]
+          airquality: {
+            day: [
+              {y:90}, {y:87}, {y:80}, {y:78}, {y:80}, {y:75}, {y:68}, {y:65}, {y:60}, {y:65}, {y:70}, {y:65},
+              {y:50}, {y:60}, {y:55}, {y:65}, {y:70}, {y:78}, {y:85}, {y:85}, {y:86}, {y:80}, {y:85}, {y:90}
+            ],
+            week: [
+              {y:80}, {y:70}, {y:70}, {y:80}, {y:60}, {y:55}, {y:82}
+            ],
+            month: [
+              {y:80}, {y:80}, {y:75}, {y:70}
+            ]
+          },
+          co: {
+            day: [
+              290, 287, 280, 278, 280, 275, 268, 265, 260, 265, 270, 265,
+              250, 260, 255, 265, 270, 278, 285, 285, 286, 280, 285, 290
+            ],
+            week: [
+              280, 270, 270, 280, 260, 255, 282
+            ],
+            month: [
+              280, 280, 275, 270
+            ]
+          },
+          temperature: {
+            day: [
+              20, 22, 23, 23, 22, 24, 27, 28, 29, 29, 30, 30,
+              31, 32, 29, 28, 26, 25, 25, 24, 23, 22, 22, 22
+            ],
+            week: [
+              30, 31, 28, 30, 32, 29, 28
+            ],
+            month: [
+              29, 30, 33, 30
+            ]
+          }
         },
         statusCompare: {
 
@@ -130,15 +162,21 @@ class ReportChart extends Component {
   }
 
   componentWillMount() {
-
+    var entry = this.state.statusquality;
+    this.setState({quality: entry.airquality.day[this.state.hour-1].y});
+    this.setState({co: entry.co.day[this.state.hour-1]});
+    this.setState({temperature: entry.temperature.day[this.state.hour-1]});
+    AsyncStorage.setItem('location', this.props.textLocation);
+    AsyncStorage.setItem('date', this.state.dateDown);
   }
+
   componentDidMount() {
     this.setState(
       update(this.state, {
         dataDay: {
           $set: {
             dataSets: [{
-              values: this.state.statusquality.day,
+              values: this.state.statusquality.airquality.day,
               label: 'CO',
               config: {
                 lineWidth: 2,
@@ -183,7 +221,7 @@ class ReportChart extends Component {
         dataWeek: {
           $set: {
             dataSets: [{
-              values: this.state.statusquality.week,
+              values: this.state.statusquality.airquality.week,
               label: 'CO',
               config: {
                 lineWidth: 2,
@@ -227,7 +265,7 @@ class ReportChart extends Component {
         dataMonth: {
           $set: {
             dataSets: [{
-              values: this.state.statusquality.month,
+              values: this.state.statusquality.airquality.month,
               label: 'CO',
               config: {
                 lineWidth: 2,
@@ -267,11 +305,54 @@ class ReportChart extends Component {
     );
   }
 
-  handleSelect(event) {
+  handleSelectDay(event) {
+    //flag: 0, 1, 2 untuk day, week, month
+    console.log(this.state.statusquality.co.day[this.state.hour-1]);
     var entry = event.nativeEvent;
-    var quality = entry.y;
     // console.log(entry.y)
-    this.setState({quality: quality});
+    var quality = entry.y;
+    this.setState({quality: (entry.y !== undefined ? entry.y: this.state.quality)});
+    this.setState({hour: (entry.x !== undefined ? entry.x: this.state.hour)});
+    this.setState({co: this.state.statusquality.co.day[this.state.hour-1]});
+    this.setState({temperature: this.state.statusquality.temperature.day[this.state.hour-1]});
+    AsyncStorage.setItem('quality', String(this.state.quality));
+    AsyncStorage.setItem('flag','0');
+    AsyncStorage.setItem('hour', String(this.state.hour));
+    this.changeStatus(quality);
+  }
+
+  handleSelectWeek(event) {
+    //flag: 0, 1, 2 untuk day, week, month
+    var entry = event.nativeEvent;
+    // console.log(entry.y)
+    var quality = entry.y;
+    this.setState({quality: (entry.y !== undefined ? entry.y: this.state.quality)});
+    this.setState({daySelected: (entry.x !== undefined ? entry.x: this.state.daySelected)});
+    console.log(entry.x);
+    this.setState({co: this.state.statusquality.co.week[this.state.daySelected-1]});
+    this.setState({temperature: this.state.statusquality.temperature.week[this.state.daySelected-1]});
+    AsyncStorage.setItem('quality', String(this.state.quality));
+    AsyncStorage.setItem('flag', '1');
+    AsyncStorage.setItem('daySelected', String(this.state.daySelected));
+    this.changeStatus(quality);
+  }
+
+  handleSelectMonth(event) {
+    //flag: 0, 1, 2 untuk day, week, month
+    var entry = event.nativeEvent;
+    // console.log(entry.y)
+    var quality = entry.y;
+    this.setState({quality: (entry.y !== undefined ? entry.y: this.state.quality)});
+    this.setState({weekSelected: (entry.x !== undefined ? entry.x: this.state.weekSelected)});
+    this.setState({co: this.state.statusquality.co.month[this.state.weekSelected-1]});
+    this.setState({temperature: this.state.statusquality.temperature.month[this.state.weekSelected-1]});
+    AsyncStorage.setItem('quality', String(this.state.quality));
+    AsyncStorage.setItem('flag', '2');
+    AsyncStorage.setItem('weekSelected', String(this.state.hour));
+    this.changeStatus(quality);
+  }
+
+  changeStatus(quality) {
     //Untuk baby
     if (quality <= 40) {
       this.setState({baby: 3}); //bahaya
@@ -418,7 +499,7 @@ class ReportChart extends Component {
             <View style={styles.topSegmentDetail}>
               <Icon style={styles.iconUpDown} name="triangle-up" size={30} color="#50e3c2"/>
               <Text style={styles.textNumber}>
-                46
+                {this.state.co}
               </Text>
             </View>
             <Text style={styles.labelDetail}>
@@ -429,7 +510,7 @@ class ReportChart extends Component {
             <View style={styles.topSegmentDetail}>
               <Icon style={styles.iconUpDown} name="triangle-up" size={30} color="#50e3c2"/>
               <Text style={styles.textNumber}>
-                35
+                {this.state.temperature}
               </Text>
             </View>
             <Text style={styles.labelDetail}>
@@ -440,7 +521,7 @@ class ReportChart extends Component {
             <View style={styles.topSegmentDetail}>
               <Icon style={styles.iconUpDown} name="triangle-up" size={30} color="#50e3c2"/>
               <Text style={styles.textNumber}>
-                {"60%"}
+                {this.state.quality+"%"}
               </Text>
             </View>
             <Text style={styles.labelDetail}>
@@ -489,7 +570,7 @@ class ReportChart extends Component {
                     dragDecelerationFrictionCoef={0.99}
 
                     keepPositionOnRotation={false}
-                    onSelect={this.handleSelect.bind(this)}
+                    onSelect={this.handleSelectDay.bind(this)}
                   />
                   <Icon name="chevron-thin-right" color="#848484" size={40} style={{textAlignVertical:'center', flex:1}}/>
                 </View>
@@ -527,7 +608,7 @@ class ReportChart extends Component {
                     dragDecelerationFrictionCoef={0.99}
 
                     keepPositionOnRotation={false}
-                    onSelect={this.handleSelect.bind(this)}
+                    onSelect={this.handleSelectWeek.bind(this)}
                   />
                   <Icon name="chevron-thin-right" color="#848484" size={40} style={{textAlignVertical:'center', flex:1}}/>
                 </View>
@@ -565,7 +646,7 @@ class ReportChart extends Component {
                     dragDecelerationFrictionCoef={0.99}
 
                     keepPositionOnRotation={false}
-                    onSelect={this.handleSelect.bind(this)}
+                    onSelect={this.handleSelectMonth.bind(this)}
                   />
                   <Icon name="chevron-thin-right" color="#848484" size={40} style={{textAlignVertical:'center', flex:1}}/>
                 </View>

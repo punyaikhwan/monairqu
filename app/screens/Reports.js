@@ -71,7 +71,7 @@ class Reports extends Component {
   componentWillMount() {
     this._onSelectPlace(0, this.state.markers[0].latlng.latitude, this.state.markers[0].latlng.longitude, this.state.markers[0].quality);
   }
-  
+
   componentDidMount() {
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -185,7 +185,7 @@ class Reports extends Component {
                 </Text>
               </ScrollView>
             </View>
-              <TouchableHighlight style={styles.detailBtn} underlayColor={"rgba(0,0,0,0)"} onPress={() => Actions.chart({sensorId: this.state.sensorId, textLocation: this.state.textLocation})}>
+              <TouchableHighlight style={styles.detailBtn} underlayColor={"rgba(0,0,0,0)"} onPress={() => Actions.chart({sensorId: this.state.sensorId, textLocation: this.state.textLocation, quality: this.state.quality})}>
                 <View style={styles.detailBtnContainer}>
                 <Text style={styles.detailBtnText}>
                   Details

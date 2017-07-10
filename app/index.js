@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {Actions, Router, Scene } from 'react-native-router-flux';
-import {StyleSheet, TouchableOpacity, Image, StatusBar, Share} from 'react-native';
+import {StyleSheet, TouchableOpacity, Image, StatusBar, Share, AsyncStorage} from 'react-native';
 import Reports from './screens/Reports';
 import Hello from './screens/Hello';
 import styles from './styles';
@@ -145,10 +145,60 @@ class App extends Component {
     )
   }
 
+  numberToDayString(value) {
+    switch(value) {
+      case '0': return "Sunday"; break;
+      case '1': return "Monday"; break;
+      case '2': return "Tuesday"; break;
+      case '3': return "Wednesday"; break;
+      case '4': return "Thursday"; break;
+      case '5': return "Friday"; break;
+      case '6': return "Saturday"; break;
+      default: return "Undefined day"; break;
+    }
+  }
   _shareMessage() {
-    Share.share({
-      message: 'React Native | A framework for building native apps using React'
-    });
+    var message = "AIR QUALITY INFORMATION\n";
+    AsyncStorage.getItem('location').then((value) => {
+      message = message+"Location: "+value+"\n";
+      AsyncStorage.getItem('date').then((value) => {
+        message = message+"Date: "+value+"\n";
+        AsyncStorage.getItem('flag').then((flag) => {
+          if (flag === '0') {
+            AsyncStorage.getItem('hour').then((value) => {
+              message = message+"Hour: "+value+":00\n";
+              AsyncStorage.getItem('quality').then((value) => {
+                message = message+"Quality: "+value+"%\n";
+                Share.share({
+                  message: message
+                });
+              }).done();
+            }).done();
+          } else
+          if (flag === '1') {
+            AsyncStorage.getItem('daySelected').then((value) => {
+              message = message+"day: "+this.numberToDayString(value)+"\n";
+              AsyncStorage.getItem('quality').then((value) => {
+                message = message+"Quality: "+value+"%\n";
+                Share.share({
+                  message: message
+                });
+              }).done();
+            }).done();
+          } else {
+            AsyncStorage.getItem('daySelected').then((value) => {
+              message = message+"week: "+value+"\n";
+              AsyncStorage.getItem('quality').then((value) => {
+                message = message+"Quality: "+value+"%\n";
+                Share.share({
+                  message: message
+                });
+              }).done();
+            }).done();
+          }
+        }).done();
+      }).done();
+    }).done();
   }
 
   shareButton(){
