@@ -42,13 +42,13 @@ var yellowtrans = "rgba(246,215,35,0.6)";
 var orangetrans = "rgba(246, 166, 35,0.6)";
 var bluetrans ="rgba(137,191,255,0.6)";
 
+//get Data
+var date = new Date();
+var tomorrow = new Date();
 class ReportChart extends Component {
   constructor(props) {
     super(props);
 
-    //get Data
-    var date = new Date();
-    var tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate()+1);
     var dateDown = dateFormat(date, "yyyy-mm-dd");
     console.log(dateDown);
@@ -218,6 +218,8 @@ class ReportChart extends Component {
     } catch (error) {
       console.log("Error saving date.");
     }
+
+    console.log("DATE:",date);
   }
 
   componentDidMount() {
@@ -424,6 +426,7 @@ class ReportChart extends Component {
       })
     );
     this.setState({isComparing: false});
+    this.setState({isShowToday: true});
   }
 
   toggleShowToday() {
@@ -809,7 +812,7 @@ class ReportChart extends Component {
                     <View style={styles.comparingSection}>
                       <Icon name = "controller-stop" size= {20} color = {yellow} style={styles.iconComparing}/>
                       <Text style={styles.textDateCompare}>
-                        {"Tanggal terpilih"}
+                        {this.state.comparedDate}
                       </Text>
                       <Text style={styles.textCOPlace}>
                           {this.state.statusCompare.co.day[this.state.hour]}
@@ -969,6 +972,7 @@ class ReportChart extends Component {
           isVisible={this.state.isDateTimePickerVisible}
           onConfirm={this._handleDatePicked}
           onCancel={this._hideDateTimePicker}
+          maximumDate={date}
         />
       </View>
     );
@@ -982,6 +986,8 @@ class ReportChart extends Component {
   _hideDateTimePicker = () => this.setState({ isDateTimePickerVisible: false });
 
   _handleDatePicked = (date) => {
+    this.setState({comparedDate: dateFormat(date, "ddd, dd mmm yyyy")});
+    console.log(this.state.comparedDate);
     this.addToCompareData();
     this._hideDateTimePicker();
   };
