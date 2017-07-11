@@ -11,6 +11,7 @@ import {
   processColor,
   Alert,
   TouchableHighlight,
+  TouchableOpacity,
   AsyncStorage
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Entypo';
@@ -47,10 +48,11 @@ class ReportChart extends Component {
 
     //get Data
     var date = new Date();
+    var tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate()+1);
     var dateDown = dateFormat(date, "yyyy-mm-dd");
-    console.log(dateDown),
-    date.setDate(date.getDate()+1);
-    var dateUp = dateFormat(date, "yyyy-mm-dd");
+    console.log(dateDown);
+    var dateUp = dateFormat(tomorrow, "yyyy-mm-dd");
     console.log(dateUp),
     console.log(this.props.sensorId),
     //mount hari, load dari internet
@@ -65,6 +67,7 @@ class ReportChart extends Component {
     });
     this.state = {
       isDateTimePickerVisible: false,
+      comparedDate: null,
       day: dateFormat(date, "dd"),
       month: dateFormat(date, "mmm"),
       year: dateFormat(date, "yyyy"),
@@ -85,6 +88,8 @@ class ReportChart extends Component {
       bycicle: 0,
       baby: 0,
       status: 0,
+      isComparing: false,
+      isShowToday: true,
       legend: {
         enabled: false,
         textColor: processColor('blue'),
@@ -110,47 +115,83 @@ class ReportChart extends Component {
 
       },
       statusquality: {
-          sensorId: "abc123",
-          airquality: {
-            day: [
-              {y:90}, {y:87}, {y:80}, {y:78}, {y:80}, {y:75}, {y:68}, {y:65}, {y:60}, {y:65}, {y:70}, {y:65},
-              {y:50}, {y:60}, {y:55}, {y:65}, {y:70}, {y:78}, {y:85}, {y:85}, {y:86}, {y:80}, {y:85}, {y:90}
-            ],
-            week: [
-              {y:80}, {y:70}, {y:70}, {y:80}, {y:60}, {y:55}, {y:82}
-            ],
-            month: [
-              {y:80}, {y:80}, {y:75}, {y:70}
-            ]
-          },
-          co: {
-            day: [
-              290, 287, 280, 278, 280, 275, 268, 265, 260, 265, 270, 265,
-              250, 260, 255, 265, 270, 278, 285, 285, 286, 280, 285, 290
-            ],
-            week: [
-              280, 270, 270, 280, 260, 255, 282
-            ],
-            month: [
-              280, 280, 275, 270
-            ]
-          },
-          temperature: {
-            day: [
-              20, 22, 23, 23, 22, 24, 27, 28, 29, 29, 30, 30,
-              31, 32, 29, 28, 26, 25, 25, 24, 23, 22, 22, 22
-            ],
-            week: [
-              30, 31, 28, 30, 32, 29, 28
-            ],
-            month: [
-              29, 30, 33, 30
-            ]
-          }
+        sensorId: "abc123",
+        airquality: {
+          day: [
+            {y:90}, {y:87}, {y:80}, {y:78}, {y:80}, {y:75}, {y:68}, {y:65}, {y:60}, {y:65}, {y:70}, {y:65},
+            {y:50}, {y:60}, {y:55}, {y:65}, {y:70}, {y:78}, {y:85}, {y:85}, {y:86}, {y:80}, {y:85}, {y:90}
+          ],
+          week: [
+            {y:80}, {y:70}, {y:70}, {y:80}, {y:60}, {y:55}, {y:82}
+          ],
+          month: [
+            {y:80}, {y:80}, {y:75}, {y:70}
+          ]
         },
-        statusCompare: {
-
+        co: {
+          day: [
+            290, 287, 280, 278, 280, 275, 268, 265, 260, 265, 270, 265,
+            250, 260, 255, 265, 270, 278, 285, 285, 286, 280, 285, 290
+          ],
+          week: [
+            280, 270, 270, 280, 260, 255, 282
+          ],
+          month: [
+            280, 280, 275, 270
+          ]
+        },
+        temperature: {
+          day: [
+            20, 22, 23, 23, 22, 24, 27, 28, 29, 29, 30, 30,
+            31, 32, 29, 28, 26, 25, 25, 24, 23, 22, 22, 22
+          ],
+          week: [
+            30, 31, 28, 30, 32, 29, 28
+          ],
+          month: [
+            29, 30, 33, 30
+          ]
         }
+      },
+      statusCompare: {
+        sensorId: "abc123",
+        airquality: {
+          day: [
+            {y:60}, {y:77}, {y:90}, {y:78}, {y:80}, {y:55}, {y:50}, {y:35}, {y:70}, {y:45}, {y:50}, {y:55},
+            {y:50}, {y:62}, {y:57}, {y:69}, {y:76}, {y:85}, {y:85}, {y:80}, {y:88}, {y:85}, {y:80}, {y:90}
+          ],
+          week: [
+            {y:78}, {y:68}, {y:75}, {y:60}, {y:70}, {y:60}, {y:72}
+          ],
+          month: [
+            {y:86}, {y:85}, {y:76}, {y:79}
+          ]
+        },
+        co: {
+          day: [
+            290, 287, 280, 278, 280, 275, 268, 265, 260, 265, 270, 265,
+            250, 260, 255, 265, 270, 278, 285, 285, 286, 280, 285, 290
+          ],
+          week: [
+            280, 270, 270, 280, 260, 255, 282
+          ],
+          month: [
+            280, 280, 275, 270
+          ]
+        },
+        temperature: {
+          day: [
+            20, 22, 23, 23, 22, 24, 27, 28, 29, 29, 30, 30,
+            31, 32, 29, 28, 26, 25, 25, 24, 23, 22, 22, 22
+          ],
+          week: [
+            30, 31, 28, 30, 32, 29, 28
+          ],
+          month: [
+            29, 30, 33, 30
+          ]
+        }
+      }
     };
   }
 
@@ -161,13 +202,22 @@ class ReportChart extends Component {
       });
   }
 
-  componentWillMount() {
+  async componentWillMount() {
     var entry = this.state.statusquality;
-    this.setState({quality: entry.airquality.day[this.state.hour-1].y});
-    this.setState({co: entry.co.day[this.state.hour-1]});
-    this.setState({temperature: entry.temperature.day[this.state.hour-1]});
-    AsyncStorage.setItem('location', this.props.textLocation);
-    AsyncStorage.setItem('date', this.state.dateDown);
+    this.setState({quality: entry.airquality.day[this.state.hour].y});
+    this.setState({co: entry.co.day[this.state.hour]});
+    this.setState({temperature: entry.temperature.day[this.state.hour]});
+    try {
+      await AsyncStorage.setItem('location', this.props.textLocation);
+    } catch (error) {
+      console.log("Error saving location.");
+    }
+
+    try {
+      await AsyncStorage.setItem('date', this.state.dateDown);
+    } catch (error) {
+      console.log("Error saving date.");
+    }
   }
 
   componentDidMount() {
@@ -189,7 +239,8 @@ class ReportChart extends Component {
                 drawValues: false,
                 valueTextColor: processColor('white'),
               }
-            }],
+            }
+          ],
           }
         },
         xAxisDay: {
@@ -305,51 +356,192 @@ class ReportChart extends Component {
     );
   }
 
-  handleSelectDay(event) {
-    //flag: 0, 1, 2 untuk day, week, month
-    console.log(this.state.statusquality.co.day[this.state.hour-1]);
-    var entry = event.nativeEvent;
-    // console.log(entry.y)
-    var quality = entry.y;
-    this.setState({quality: (entry.y !== undefined ? entry.y: this.state.quality)});
-    this.setState({hour: (entry.x !== undefined ? entry.x: this.state.hour)});
-    this.setState({co: this.state.statusquality.co.day[this.state.hour-1]});
-    this.setState({temperature: this.state.statusquality.temperature.day[this.state.hour-1]});
-    AsyncStorage.setItem('quality', String(this.state.quality));
-    AsyncStorage.setItem('flag','0');
-    AsyncStorage.setItem('hour', String(this.state.hour));
-    this.changeStatus(quality);
+  addToCompareData() {
+    this.setState(
+      update(this.state, {
+        dataDay: {
+          $set: {
+            dataSets: [{
+              values: this.state.statusquality.airquality.day,
+              label: 'CO',
+              config: {
+                lineWidth: 2,
+                drawCircles: true,
+                highlightColor: processColor('#6caefb'),
+                color: processColor('#6caefb'),
+                drawFilled: true,
+                fillColor: processColor('#6caefb'),
+                fillAlpha: 60,
+                drawValues: false,
+                valueTextColor: processColor('white'),
+              }
+            }, {
+              values: this.state.statusCompare.airquality.day,
+              label: 'CO',
+              config: {
+                lineWidth: 2,
+                drawCircles: true,
+                highlightColor: processColor('#ffff00'),
+                color: processColor('#ffff00'),
+                drawFilled: false,
+                fillColor: processColor('#6caefb'),
+                fillAlpha: 60,
+                drawValues: false,
+                valueTextColor: processColor('white'),
+              }
+            }
+          ],
+          }
+        }
+      })
+    );
+    this.setState({isComparing: true});
   }
 
-  handleSelectWeek(event) {
+  closeCompare() {
+    this.setState(
+      update(this.state, {
+        dataDay: {
+          $set: {
+            dataSets: [{
+              values: this.state.statusquality.airquality.day,
+              label: 'CO',
+              config: {
+                lineWidth: 2,
+                drawCircles: true,
+                highlightColor: processColor('#6caefb'),
+                color: processColor('#6caefb'),
+                drawFilled: true,
+                fillColor: processColor('#6caefb'),
+                fillAlpha: 60,
+                drawValues: false,
+                valueTextColor: processColor('white'),
+              }
+            }
+          ],
+          }
+        }
+      })
+    );
+    this.setState({isComparing: false});
+  }
+
+  toggleShowToday() {
+    if (this.state.isShowToday) {
+      this.setState(
+        update(this.state, {
+          dataDay: {
+            $set: {
+              dataSets: [{
+                values: this.state.statusCompare.airquality.day,
+                label: 'CO',
+                config: {
+                  lineWidth: 2,
+                  drawCircles: true,
+                  highlightColor: processColor('#ffff00'),
+                  color: processColor('#ffff00'),
+                  drawFilled: true,
+                  fillColor: processColor('#6caefb'),
+                  fillAlpha: 60,
+                  drawValues: false,
+                  valueTextColor: processColor('white'),
+                }
+              }
+            ],
+            }
+          }
+        })
+      );
+    } else {
+      this.addToCompareData();
+    }
+
+    console.log("Before:", this.state.isShowToday)
+    this.setState({isShowToday: !this.state.isShowToday})
+    console.log("After:", this.state.isShowToday)
+  }
+
+  async handleSelectDay(event) {
     //flag: 0, 1, 2 untuk day, week, month
     var entry = event.nativeEvent;
-    // console.log(entry.y)
-    var quality = entry.y;
-    this.setState({quality: (entry.y !== undefined ? entry.y: this.state.quality)});
-    this.setState({daySelected: (entry.x !== undefined ? entry.x: this.state.daySelected)});
     console.log(entry.x);
-    this.setState({co: this.state.statusquality.co.week[this.state.daySelected-1]});
-    this.setState({temperature: this.state.statusquality.temperature.week[this.state.daySelected-1]});
-    AsyncStorage.setItem('quality', String(this.state.quality));
-    AsyncStorage.setItem('flag', '1');
-    AsyncStorage.setItem('daySelected', String(this.state.daySelected));
-    this.changeStatus(quality);
+    this.setState({hour: (entry.x !== undefined ? entry.x: this.state.hour)});
+    this.setState({quality: (entry.x !== undefined ? this.state.statusquality.airquality.day[entry.x].y: this.state.quality)});
+    this.setState({co: this.state.statusquality.co.day[this.state.hour-1]});
+    this.setState({temperature: this.state.statusquality.temperature.day[this.state.hour]});
+    try {
+      await AsyncStorage.setItem('quality', String(this.state.quality));
+    } catch (error) {
+      console.log("Error saving quality.");
+    }
+
+    try {
+      await AsyncStorage.setItem('flag','0');
+    } catch (error) {
+      console.log("Error saving flag.");
+    }
+
+    try {
+      await AsyncStorage.setItem('hour', String(this.state.hour));
+    } catch (error) {
+      console.log("Error saving hour")
+    }
+    this.changeStatus(this.state.quality);
   }
 
-  handleSelectMonth(event) {
+  async handleSelectWeek(event) {
     //flag: 0, 1, 2 untuk day, week, month
     var entry = event.nativeEvent;
-    // console.log(entry.y)
-    var quality = entry.y;
-    this.setState({quality: (entry.y !== undefined ? entry.y: this.state.quality)});
+    this.setState({daySelected: (entry.x !== undefined ? entry.x: this.state.daySelected)});
+    this.setState({quality: (entry.x !== undefined ? this.state.statusquality.airquality.week[entry.x].y: this.state.quality)});
+    console.log(entry.x);
+    this.setState({co: this.state.statusquality.co.week[this.state.daySelected]});
+    this.setState({temperature: this.state.statusquality.temperature.week[this.state.daySelected]});
+    try {
+      await AsyncStorage.setItem('quality', String(this.state.quality));
+    } catch (error) {
+      console.log("Error saving quality.");
+    }
+
+    try {
+      await AsyncStorage.setItem('flag','1');
+    } catch (error) {
+      console.log("Error saving flag.");
+    }
+
+    try {
+      await AsyncStorage.setItem('daySelected', String(this.state.daySelected));
+    } catch (error) {
+      console.log("Error saving day")
+    }
+    this.changeStatus(this.state.quality);
+  }
+
+  async handleSelectMonth(event) {
+    //flag: 0, 1, 2 untuk day, week, month
+    var entry = event.nativeEvent;
     this.setState({weekSelected: (entry.x !== undefined ? entry.x: this.state.weekSelected)});
-    this.setState({co: this.state.statusquality.co.month[this.state.weekSelected-1]});
-    this.setState({temperature: this.state.statusquality.temperature.month[this.state.weekSelected-1]});
-    AsyncStorage.setItem('quality', String(this.state.quality));
-    AsyncStorage.setItem('flag', '2');
-    AsyncStorage.setItem('weekSelected', String(this.state.hour));
-    this.changeStatus(quality);
+    this.setState({quality: (entry.x !== undefined ? this.state.statusquality.airquality.month[entry.x].y: this.state.quality)});
+    this.setState({co: this.state.statusquality.co.month[this.state.weekSelected]});
+    this.setState({temperature: this.state.statusquality.temperature.month[this.state.weekSelected]});
+    try {
+      await AsyncStorage.setItem('quality', String(this.state.quality));
+    } catch (error) {
+      console.log("Error saving quality.");
+    }
+
+    try {
+      await AsyncStorage.setItem('flag','2');
+    } catch (error) {
+      console.log("Error saving flag.");
+    }
+
+    try {
+      await AsyncStorage.setItem('weekSelected', String(this.state.weekSelected));
+    } catch (error) {
+      console.log("Error saving week")
+    }
+    this.changeStatus(this.state.quality);
   }
 
   changeStatus(quality) {
@@ -497,7 +689,7 @@ class ReportChart extends Component {
         <View style={styles.detailStatus}>
           <View style={styles.detailPerItem}>
             <View style={styles.topSegmentDetail}>
-              <Icon style={styles.iconUpDown} name="triangle-up" size={30} color="#50e3c2"/>
+              <Icon style={styles.iconUpDown} name="triangle-up" size={20} color="#50e3c2"/>
               <Text style={styles.textNumber}>
                 {this.state.co}
               </Text>
@@ -508,10 +700,15 @@ class ReportChart extends Component {
           </View>
           <View style={styles.detailPerItem}>
             <View style={styles.topSegmentDetail}>
-              <Icon style={styles.iconUpDown} name="triangle-up" size={30} color="#50e3c2"/>
-              <Text style={styles.textNumber}>
-                {this.state.temperature}
-              </Text>
+              <Icon style={styles.iconUpDown} name="triangle-up" size={20} color="#50e3c2"/>
+              <View style={{flex:2, flexDirection:'row'}}>
+                <Text style={styles.textNumberTemp}>
+                  {this.state.statusquality.temperature.day[this.state.hour]}
+                </Text>
+                <Text style={{flex:2,fontSize:11, lineHeight:7, color: 'white'}}>
+                  o
+                </Text>
+              </View>
             </View>
             <Text style={styles.labelDetail}>
               {"Suhu (Celcius)"}
@@ -519,7 +716,7 @@ class ReportChart extends Component {
           </View>
           <View style={styles.detailPerItem}>
             <View style={styles.topSegmentDetail}>
-              <Icon style={styles.iconUpDown} name="triangle-up" size={30} color="#50e3c2"/>
+              <Icon style={styles.iconUpDown} name="triangle-up" size={20} color="#50e3c2"/>
               <Text style={styles.textNumber}>
                 {this.state.quality+"%"}
               </Text>
@@ -544,7 +741,6 @@ class ReportChart extends Component {
             {this.state.indexTab === 0 &&
               <View>
                 <View style={{width:width-20, height:200, flexDirection:'row'}}>
-                  <Icon name="chevron-thin-left" color="#848484" size={40} style={{textAlignVertical:'center', flex:1}}/>
                   <LineChart
                     style={styles.chart}
                     data={this.state.dataDay}
@@ -572,17 +768,75 @@ class ReportChart extends Component {
                     keepPositionOnRotation={false}
                     onSelect={this.handleSelectDay.bind(this)}
                   />
-                  <Icon name="chevron-thin-right" color="#848484" size={40} style={{textAlignVertical:'center', flex:1}}/>
                 </View>
-                <Text style={styles.addDay} onPress={this._showDateTimePicker}>
-                {"+ Add day "}
-                </Text>
+                {this.state.isComparing === false &&
+                  <Text style={styles.addDay} onPress={this._showDateTimePicker}>
+                  {"+ Add day "}
+                  </Text>
+                }
+                {this.state.isComparing === true &&
+                  <View style={styles.compareContainer}>
+                    <View style={styles.comparingSection}>
+                      <Icon name = "controller-stop" size= {20} color = {blue} style={styles.iconComparing}/>
+                      <Text style={styles.textDateCompare}>
+                        Today
+                      </Text>
+                      <Text style={styles.textCOPlace}>
+                        {this.state.statusquality.co.day[this.state.hour]}
+                      </Text>
+                      <View style={{flex:1, flexDirection:'row'}}>
+                        <Text style={styles.textTempPlace}>
+                          {this.state.statusquality.temperature.day[this.state.hour]}
+                        </Text>
+                        <Text style={{flex:1,fontSize:11, lineHeight:7, color: 'white'}}>
+                          o
+                        </Text>
+                      </View>
+                      <Text style={styles.textAirPlace}>
+                        {this.state.statusquality.airquality.day[this.state.hour].y+"%"}
+                      </Text>
+                      {this.state.isShowToday === true &&
+                        <TouchableOpacity style={styles.iconComparing} onPress={this.toggleShowToday.bind(this)}>
+                        <Icon name= "eye" size= {20} color = "#cfff00"/>
+                        </TouchableOpacity>
+                      }
+                      {this.state.isShowToday === false &&
+                        <TouchableOpacity style={styles.iconComparing} onPress={this.toggleShowToday.bind(this)}>
+                        <Icon name= "eye-with-line" size= {20} color = "#8A8383"/>
+                        </TouchableOpacity>
+                      }
+                    </View>
+                    <View style={styles.comparingSection}>
+                      <Icon name = "controller-stop" size= {20} color = {yellow} style={styles.iconComparing}/>
+                      <Text style={styles.textDateCompare}>
+                        {"Tanggal terpilih"}
+                      </Text>
+                      <Text style={styles.textCOPlace}>
+                          {this.state.statusCompare.co.day[this.state.hour]}
+                      </Text>
+                      <View style={{flex:1, flexDirection:'row'}}>
+                        <Text style={styles.textTempPlace}>
+                          {this.state.statusCompare.temperature.day[this.state.hour]}
+                        </Text>
+                        <Text style={{flex:1,fontSize:11, lineHeight:7, color: 'white'}}>
+                          o
+                        </Text>
+                      </View>
+                      <Text style={styles.textAirPlace}>
+                        {this.state.statusCompare.airquality.day[this.state.hour].y+"%"}
+                      </Text>
+                      <TouchableOpacity style={styles.iconComparing} onPress={this.closeCompare.bind(this)}>
+                      <Icon name= "cross" size= {20} color = "#cfff00"/>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                }
               </View>
             }
+
             {this.state.indexTab === 1 &&
               <View>
                 <View style={{width:width-20, height:200, flexDirection:'row'}}>
-                  <Icon name="chevron-thin-left" color="#848484" size={40} style={{textAlignVertical:'center', flex:1}}/>
                   <LineChart
                     style={styles.chart}
                     data={this.state.dataWeek}
@@ -610,7 +864,6 @@ class ReportChart extends Component {
                     keepPositionOnRotation={false}
                     onSelect={this.handleSelectWeek.bind(this)}
                   />
-                  <Icon name="chevron-thin-right" color="#848484" size={40} style={{textAlignVertical:'center', flex:1}}/>
                 </View>
                 <Text style={styles.addDay} onPress={this._showDateTimePicker}>
                 {"+ Add day "}
@@ -620,7 +873,6 @@ class ReportChart extends Component {
             {this.state.indexTab === 2 &&
               <View>
                 <View style={{width:width-20, height:200, flexDirection:'row'}}>
-                  <Icon name="chevron-thin-left" color="#848484" size={40} style={{textAlignVertical:'center', flex:1}}/>
                   <LineChart
                     style={styles.chart}
                     data={this.state.dataMonth}
@@ -648,7 +900,6 @@ class ReportChart extends Component {
                     keepPositionOnRotation={false}
                     onSelect={this.handleSelectMonth.bind(this)}
                   />
-                  <Icon name="chevron-thin-right" color="#848484" size={40} style={{textAlignVertical:'center', flex:1}}/>
                 </View>
                 <Text style={styles.addDay} onPress={this._showDateTimePicker}>
                 {"+ Add day "}
@@ -731,7 +982,7 @@ class ReportChart extends Component {
   _hideDateTimePicker = () => this.setState({ isDateTimePickerVisible: false });
 
   _handleDatePicked = (date) => {
-    console.log('A date has been picked: ', date);
+    this.addToCompareData();
     this._hideDateTimePicker();
   };
 
@@ -926,7 +1177,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   chart: {
-    flex: 8
+    flex: 1
   },
 
   tabsContainerStyle: {
@@ -985,6 +1236,13 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: 'white'
   },
+
+  textNumberTemp: {
+    flex: 1,
+    fontSize: 20,
+    color: 'white'
+  },
+
   labelDetail: {
     flex: 1,
     color: 'white',
@@ -996,6 +1254,45 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginLeft: 32,
     marginTop: 10,
+  },
+
+  compareContainer: {
+    flexDirection: "column",
+    marginRight: 32,
+    marginLeft: 32,
+    marginTop: 10,
+  },
+
+  comparingSection: {
+    flexDirection: 'row',
+    paddingTop: 15,
+    paddingBottom: 15,
+    alignItems: 'center',
+    flex: 1
+  },
+
+  iconComparing: {
+    flex: 1
+  },
+  textDateCompare: {
+    flex: 3,
+    fontSize: 14,
+    color: '#e9a83c'
+  },
+  textCOPlace: {
+    flex: 1,
+    fontSize: 14,
+    color: 'white'
+  },
+  textTempPlace: {
+    flex: 1,
+    fontSize: 14,
+    color: 'white'
+  },
+  textAirPlace: {
+    flex: 1,
+    fontSize: 14,
+    color: 'white'
   }
 });
 

@@ -58,11 +58,11 @@ class Reports extends Component {
       },
       markers: [
         {sensorId: "abc123", latlng: {latitude: -7.770167, longitude: 110.346807},
-          description: "Di sini sensor 1", quality: 15},
+          description: "Di sini sensor 1", quality: 15, co: 280, temperature: 27},
         {sensorId: "abc124", latlng: {latitude: -7.772000, longitude: 110.347630},
-          description: "Di sini sensor 2", quality: 75},
+          description: "Di sini sensor 2", quality: 75, co: 290, temperature: 29},
         {sensorId: "abc125", latlng: {latitude: -7.773316, longitude: 110.344091},
-          description: "Di sini sensor 3", quality: 100},
+          description: "Di sini sensor 3", quality: 100, co: 300, temperature: 28},
       ]
     };
     this.onRegionChange = this.onRegionChange.bind(this);
@@ -185,7 +185,8 @@ class Reports extends Component {
                 </Text>
               </ScrollView>
             </View>
-              <TouchableHighlight style={styles.detailBtn} underlayColor={"rgba(0,0,0,0)"} onPress={() => Actions.chart({sensorId: this.state.sensorId, textLocation: this.state.textLocation, quality: this.state.quality})}>
+              <TouchableHighlight style={styles.detailBtn} underlayColor={"rgba(0,0,0,0)"} onPress={() =>
+                Actions.chart({sensorId: this.state.sensorId, textLocation: this.state.textLocation, quality: this.state.quality})}>
                 <View style={styles.detailBtnContainer}>
                 <Text style={styles.detailBtnText}>
                   Details
