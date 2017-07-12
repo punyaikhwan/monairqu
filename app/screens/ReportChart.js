@@ -71,7 +71,7 @@ class ReportChart extends Component {
       day: dateFormat(date, "dd"),
       month: dateFormat(date, "mmm"),
       year: dateFormat(date, "yyyy"),
-      hour: dateFormat(date, "HH"),
+      hour: dateFormat(date, "H"),
       daySelected: null,
       weekSelected: null,
       dateUp: dateUp,
@@ -81,7 +81,7 @@ class ReportChart extends Component {
       indexTab: 0,
       data: {},
       selectedImageRecommend: null,
-      quality: null,
+      quality: this.props.quality,
       co: null,
       temperature: null,
       run: 0,
@@ -203,10 +203,6 @@ class ReportChart extends Component {
   }
 
   async componentWillMount() {
-    var entry = this.state.statusquality;
-    this.setState({quality: entry.airquality.day[this.state.hour].y});
-    this.setState({co: entry.co.day[this.state.hour]});
-    this.setState({temperature: entry.temperature.day[this.state.hour]});
     try {
       await AsyncStorage.setItem('location', this.props.textLocation);
     } catch (error) {
@@ -218,8 +214,10 @@ class ReportChart extends Component {
     } catch (error) {
       console.log("Error saving date.");
     }
-
-    console.log("DATE:",date);
+    var entry = this.state.statusquality;
+    this.setState({quality: entry.airquality.day[this.state.hour].y});
+    this.setState({co: entry.co.day[this.state.hour]});
+    this.setState({temperature: entry.temperature.day[this.state.hour]});
   }
 
   componentDidMount() {

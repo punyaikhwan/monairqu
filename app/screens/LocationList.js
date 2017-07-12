@@ -4,7 +4,8 @@ import {
   View,
   StyleSheet,
   Picker,
-  Dimensions
+  Dimensions,
+  Alert
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Entypo';
 
@@ -14,7 +15,29 @@ class LocationList extends Component {
   constructor(props, context) {
     super(props, context)
     this.state = {
-     province: "Yogyakarta"  }
+     province: "Yogyakarta",
+     city: "Sleman",
+     locIndex: 0,
+     locationList: [
+       {
+         province: "Yogyakarta",
+         kabupaten: ["Sleman", "Bantul", "Gunung Kidul", "Kulon Progo"]
+       },
+       {
+         province: "Jakarta",
+         kabupaten: ["Jakarta Pusat", "Jakarta Utara", "Jakarta Selatan", "Jakarta Timur", "Jakarta Barat"]
+       },
+       {
+         province: "Jawa Barat",
+         kabupaten: ["Kota Bandung", "Tasikmalaya", "Indramayu", "Sumedang", "Cimahi"]
+       },
+     ],
+     latlngList: [
+       {latitude: -7.770167, longitude: 110.346807},
+       {latitude: -7.772000, longitude: 110.347630},
+       {latitude: -7.773316, longitude: 110.344091},
+     ]
+    }
   }
 
   render() {
@@ -23,14 +46,18 @@ class LocationList extends Component {
         <View style={styles.selectPlace}>
           <Picker
             selectedValue={this.state.province}
-            onValueChange={(province) => this.setState({province})}
+            onValueChange={
+              (province, i) => {
+                this.setState({province: province});
+                this.setState({locIndex: i});
+              }
+            }
             mode="dropdown"
             style={styles.placePicker}
           >
-            <Picker.Item style={{fontSize:14}} label="Yogyakarta" value="yogyakarta" />
-            <Picker.Item style={{fontSize:14}}  label="Bandung" value="bandung" />
-            <Picker.Item style={{fontSize:14}}  label="Surabaya" value="surabaya" />
-            <Picker.Item style={{fontSize:14}}  label="Jakarta" value="jakarta" />
+          {this.state.locationList.map((loc, i) => (
+            <Picker.Item key={i} style={{fontSize:14}} label={loc.province} value={loc.province, i} />
+          ))}
           </Picker>
           <Icon style={styles.dropdownIcon} name="chevron-small-down" size={30} color='white'/>
         </View>
@@ -38,98 +65,70 @@ class LocationList extends Component {
         <View style={styles.selectPlace}>
           <Picker
             selectedValue={this.state.city}
-            onValueChange={(city) => this.setState({city})}
+            onValueChange={
+              (city) => {
+                this.setState({city});
+              }
+            }
             mode="dropdown"
             style={styles.placePicker}
           >
-            <Picker.Item style={{fontSize:14}} label="Godean" value="godean" />
-            <Picker.Item style={{fontSize:14}}  label="Mlati" value="bandung" />
-            <Picker.Item style={{fontSize:14}}  label="Bantul" value="surabaya" />
-            <Picker.Item style={{fontSize:14}}  label="Sleman" value="jakarta" />
+          {this.state.locationList[this.state.locIndex].kabupaten.map((kab, i) => (
+            <Picker.Item key={i} style={{fontSize:14}} label={kab} value={kab} />
+          ))}
           </Picker>
           <Icon style={styles.dropdownIcon} name="chevron-small-down" size={30} color='white'/>
         </View>
-
-        <View style={styles.placeItem}>
-          <Text style={styles.textNamePlace}>
-            Gang Adisucipto
-          </Text>
-          <Text style={styles.textCOPlace}>
-            46
-          </Text>
-          <View style={{flex:1, flexDirection:'row'}}>
-            <Text style={styles.textTempPlace}>
-              35
-            </Text>
-            <Text style={{flex:1,fontSize:11, lineHeight:7, color: 'white'}}>
-              o
-            </Text>
-          </View>
-          <Text style={styles.textAirPlace}>
-            60%
-          </Text>
-        </View>
-        <View style={styles.placeItem}>
-          <Text style={styles.textNamePlace}>
-            Gang Adisucipto
-          </Text>
-          <Text style={styles.textCOPlace}>
-            46
-          </Text>
-          <View style={{flex:1, flexDirection:'row'}}>
-            <Text style={styles.textTempPlace}>
-              35
-            </Text>
-            <Text style={{flex:1,fontSize:11, lineHeight:7, color: 'white'}}>
-              o
-            </Text>
-          </View>
-          <Text style={styles.textAirPlace}>
-            60%
-          </Text>
-        </View>
-        <View style={styles.placeItem}>
-          <Text style={styles.textNamePlace}>
-            Gang Adisucipto
-          </Text>
-          <Text style={styles.textCOPlace}>
-            46
-          </Text>
-          <View style={{flex:1, flexDirection:'row'}}>
-            <Text style={styles.textTempPlace}>
-              35
-            </Text>
-            <Text style={{flex:1,fontSize:11, lineHeight:7, color: 'white'}}>
-              o
-            </Text>
-          </View>
-          <Text style={styles.textAirPlace}>
-            60%
-          </Text>
-        </View>
-        <View style={styles.placeItem}>
-          <Text style={styles.textNamePlace}>
-            Gang Adisucipto
-          </Text>
-          <Text style={styles.textCOPlace}>
-            46
-          </Text>
-          <View style={{flex:1, flexDirection:'row'}}>
-            <Text style={styles.textTempPlace}>
-              35
-            </Text>
-            <Text style={{flex:1,fontSize:11, lineHeight:7, color: 'white'}}>
-              o
-            </Text>
-          </View>
-          <Text style={styles.textAirPlace}>
-            60%
-          </Text>
-        </View>
+        {this.state.latlngList.map((latlng, i) => (
+          this.getViewAddress(latlng, i)
+        ))}
+        {this.tesText()}
       </View>
     )
   }
+
+  tesText() {
+    return(
+      <Text> Haaiii</Text>
+    )
+  }
+  getViewAddress(latlng, i) {
+      var renderContent
+      fetch("http://maps.googleapis.com/maps/api/geocode/json?latlng="+latlng.latitude+","+latlng.longitude+"&sensor=true")
+      .then((response) => response.json())
+      .then((response) => {
+        // console.log(response.results[0].address_components[3].long_name.indexOf(this.state.city))
+        // if (response.results[0].address_components[3].long_name.indexOf(this.state.city) !== -1) {
+          return (
+            <View key={i} style={styles.placeItem}>
+              <Text style={styles.textNamePlace}>
+                {response.results[0].address_components[0].long_name+", "+response.results[0].address_components[1].long_name}
+              </Text>
+              <Text style={styles.textCOPlace}>
+                46
+              </Text>
+              <View style={{flex:1, flexDirection:'row'}}>
+                <Text style={styles.textTempPlace}>
+                  35
+                </Text>
+                <Text style={{flex:1,fontSize:11, lineHeight:7, color: 'white'}}>
+                  o
+                </Text>
+              </View>
+              <Text style={styles.textAirPlace}>
+                60%
+              </Text>
+            </View>
+          )
+        // }
+      })
+      .catch((error) => {
+        console.error(error);
+      })
+  }
+
 }
+
 
 const styles = StyleSheet.create({
   container:{
