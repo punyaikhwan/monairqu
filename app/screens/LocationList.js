@@ -10,6 +10,7 @@ import {
 import Icon from 'react-native-vector-icons/Entypo';
 
 var {height,width} = Dimensions.get('window');
+var listShowedLoc = [];
 
 class LocationList extends Component {
   constructor(props, context) {
@@ -18,6 +19,9 @@ class LocationList extends Component {
      province: "Yogyakarta",
      city: "Sleman",
      locIndex: 0,
+     renderContent: null,
+     element: null,
+     responses:[],
      locationList: [
        {
          province: "Yogyakarta",
@@ -32,10 +36,13 @@ class LocationList extends Component {
          kabupaten: ["Kota Bandung", "Tasikmalaya", "Indramayu", "Sumedang", "Cimahi"]
        },
      ],
-     latlngList: [
-       {latitude: -7.770167, longitude: 110.346807},
-       {latitude: -7.772000, longitude: 110.347630},
-       {latitude: -7.773316, longitude: 110.344091},
+     statusList: [
+       {sensorId: "abc123", latlng: {latitude: -7.770167, longitude: 110.346807},
+         description: "Di sini sensor 1", quality: 15, co: 280, temperature: 27},
+       {sensorId: "abc124", latlng: {latitude: -7.772000, longitude: 110.347630},
+         description: "Di sini sensor 2", quality: 75, co: 290, temperature: 29},
+       {sensorId: "abc125", latlng: {latitude: -7.773316, longitude: 110.344091},
+         description: "Di sini sensor 3", quality: 100, co: 300, temperature: 28},
      ]
     }
   }
@@ -79,52 +86,57 @@ class LocationList extends Component {
           </Picker>
           <Icon style={styles.dropdownIcon} name="chevron-small-down" size={30} color='white'/>
         </View>
-        {this.state.latlngList.map((latlng, i) => (
-          this.getViewAddress(latlng, i)
-        ))}
-        {this.tesText()}
+        <Text onPress={() => this.setState({responses:this.getAllAddress(this.state.statusList)})}> GET ADDRESS</Text>
+        <Text onPress={() => this.showLog(this.state.responses)}>LOG ADDRESS</Text>
       </View>
     )
   }
 
   tesText() {
     return(
-      <Text> Haaiii</Text>
+      <Text onPress={() => console.log(this.getAllAddress(this.state.statusList))}> Haaiii</Text>
     )
   }
+
+  showLog(str) {
+    console.log(str)
+  }
+
+
+
+  getAllAddress(statusList) {
+    var telement = "";
+    var responseContainer = [];
+    statusList.map((status, i) => {
+      fetch("http://maps.googleapis.com/maps/api/geocode/json?latlng="+status.latlng.latitude+","+status.latlng.longitude+"&sensor=true")
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.results[0].address_components[3].long_name.indexOf(this.state.city) !== -1) {
+          telement = response.results[0].address_components[0].long_name+" "+response.results[0].address_components[1].long_name;
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      })
+      .done(() => {
+        responseContainer[i] = telement;
+      })
+    })
+    return responseContainer;
+  }
   getViewAddress(latlng, i) {
-      var renderContent
       fetch("http://maps.googleapis.com/maps/api/geocode/json?latlng="+latlng.latitude+","+latlng.longitude+"&sensor=true")
       .then((response) => response.json())
       .then((response) => {
         // console.log(response.results[0].address_components[3].long_name.indexOf(this.state.city))
         // if (response.results[0].address_components[3].long_name.indexOf(this.state.city) !== -1) {
-          return (
-            <View key={i} style={styles.placeItem}>
-              <Text style={styles.textNamePlace}>
-                {response.results[0].address_components[0].long_name+", "+response.results[0].address_components[1].long_name}
-              </Text>
-              <Text style={styles.textCOPlace}>
-                46
-              </Text>
-              <View style={{flex:1, flexDirection:'row'}}>
-                <Text style={styles.textTempPlace}>
-                  35
-                </Text>
-                <Text style={{flex:1,fontSize:11, lineHeight:7, color: 'white'}}>
-                  o
-                </Text>
-              </View>
-              <Text style={styles.textAirPlace}>
-                60%
-              </Text>
-            </View>
-          )
+        this.setState({renderContent: response.results[0].formatted_address});
         // }
       })
       .catch((error) => {
         console.error(error);
       })
+      console.log("Content: ", this.state.renderContent);
   }
 
 }
