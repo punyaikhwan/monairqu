@@ -5,23 +5,26 @@ import {
   StyleSheet,
   Picker,
   Dimensions,
-  Alert
+  Alert,
+  ActivityIndicator,
+  TouchableHighlight
 } from 'react-native';
+import { Actions } from 'react-native-router-flux';
 import Icon from 'react-native-vector-icons/Entypo';
 
 var {height,width} = Dimensions.get('window');
-var listShowedLoc = [];
 
 class LocationList extends Component {
   constructor(props, context) {
     super(props, context)
     this.state = {
+     loadPlace: true,
      province: "Yogyakarta",
      city: "Sleman",
      locIndex: 0,
      renderContent: null,
+     listShowedLoc: [],
      element: null,
-     responses:[],
      locationList: [
        {
          province: "Yogyakarta",
@@ -47,6 +50,17 @@ class LocationList extends Component {
     }
   }
 
+  closeActivityIndicator = () => setTimeout(() => this.setState({ loadPlace: false }), 1000)
+
+  componentWillMount() {
+    this.setState({listShowedLoc: this.props.listShowedLoc !== undefined ? this.props.listShowedLoc : []});
+    this.setState({listShowedLoc: this.getAllAddress(this.state.statusList, this.state.city)});
+  }
+
+  componentDidMount() {
+    this.setState({listShowedLoc: this.getAllAddress(this.state.statusList, this.state.city)});
+    this.closeActivityIndicator();
+  }
   render() {
     return (
       <View style={styles.container}>
@@ -57,6 +71,10 @@ class LocationList extends Component {
               (province, i) => {
                 this.setState({province: province});
                 this.setState({locIndex: i});
+                this.setState({listShowedLoc: this.getAllAddress(this.state.statusList, this.state.city)});
+                this.setState({loadPlace: true});
+                this.closeActivityIndicator();
+                console.log(this.state.listShowedLoc);
               }
             }
             mode="dropdown"
@@ -75,6 +93,9 @@ class LocationList extends Component {
             onValueChange={
               (city) => {
                 this.setState({city});
+                this.setState({listShowedLoc: this.getAllAddress(this.state.statusList, city)});
+                this.setState({loadPlace: true});
+                this.closeActivityIndicator();
               }
             }
             mode="dropdown"
@@ -86,40 +107,79 @@ class LocationList extends Component {
           </Picker>
           <Icon style={styles.dropdownIcon} name="chevron-small-down" size={30} color='white'/>
         </View>
-        <Text onPress={() => this.setState({responses:this.getAllAddress(this.state.statusList)})}> GET ADDRESS</Text>
-        <Text onPress={() => this.showLog(this.state.responses)}>LOG ADDRESS</Text>
+
+        {this.state.loadPlace === true &&
+          <ActivityIndicator
+             animating = {this.state.loadPlace}
+             color = '#bc2b78'
+             size = "large"
+             style = {styles.activityIndicator}
+          />
+        }
+
+        {this.state.listShowedLoc.map((items, i) => (
+          <TouchableHighlight key={i} style={{width: width, height: 50}} onPress={() =>
+            Actions.chart({sensorId: items.sensorId, textLocation: items.placeNameLong, quality: items.quality})}>
+          <View style={styles.placeItem}>
+            <Text style={styles.textNamePlace}>
+              {items.placeNameShort}
+            </Text>
+            <Text style={styles.textCOPlace}>
+              {items.co}
+            </Text>
+            <View style={{flex:1, flexDirection:'row'}}>
+              <Text style={styles.textTempPlace}>
+                {items.temperature}
+              </Text>
+              <Text style={{flex:1,fontSize:11, lineHeight:7, color: 'white'}}>
+                o
+              </Text>
+            </View>
+            <Text style={styles.textAirPlace}>
+              {items.quality+"%"}
+            </Text>
+          </View>
+          </TouchableHighlight>
+        ))}
       </View>
     )
   }
 
-  tesText() {
-    return(
-      <Text onPress={() => console.log(this.getAllAddress(this.state.statusList))}> Haaiii</Text>
-    )
-  }
 
-  showLog(str) {
-    console.log(str)
-  }
-
-
-
-  getAllAddress(statusList) {
-    var telement = "";
+  getAllAddress(statusList, city) {
+    var placeName = "";
+    var sensorId;
+    var latlng;
+    var description;
+    var quality;
+    var co;
+    var temperature;
+    var j = 0;
     var responseContainer = [];
     statusList.map((status, i) => {
       fetch("http://maps.googleapis.com/maps/api/geocode/json?latlng="+status.latlng.latitude+","+status.latlng.longitude+"&sensor=true")
       .then((response) => response.json())
       .then((response) => {
-        if (response.results[0].address_components[3].long_name.indexOf(this.state.city) !== -1) {
-          telement = response.results[0].address_components[0].long_name+" "+response.results[0].address_components[1].long_name;
+        if (response.results[0].formatted_address.indexOf(city) !== -1) {
+          placeName = response.results[0].address_components[0].long_name+" "+response.results[0].address_components[1].long_name;
+          var tempArr = {
+            sensorId : status.sensorId,
+            latlng : status.latlng,
+            description : status.description,
+            placeNameShort : placeName,
+            placeNameLong : response.results[0].formatted_address,
+            quality : status.quality,
+            co : status.co,
+            temperature : status.temperature,
+          }
+          responseContainer[j] = tempArr;
+          j = j+1;
         }
       })
       .catch((error) => {
         console.error(error);
       })
       .done(() => {
-        responseContainer[i] = telement;
       })
     })
     return responseContainer;
@@ -170,6 +230,7 @@ const styles = StyleSheet.create({
     flex:1,
     margin: 5
   },
+
   placeItem: {
     flexDirection: 'row',
     borderBottomColor: '#c0969696',
@@ -177,7 +238,8 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginRight: 32,
     marginLeft: 32,
-    padding: 5
+    padding: 5,
+    flex: 1
   },
   textNamePlace: {
     flex: 5,
@@ -198,7 +260,13 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     color: 'white'
-  }
+  },
+  activityIndicator: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: 80
+   }
 });
 
 export default LocationList;

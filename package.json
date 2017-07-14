@@ -28,7 +28,8 @@
     "react-native-selectme": "^1.2.3",
     "react-native-vector-icons": "^4.2.0",
     "react-native-web-service-handler": "^1.0.2",
-    "react-navigation": "^1.0.0-beta.11"
+    "react-navigation": "^1.0.0-beta.11",
+    "react-timer-mixin": "^0.13.3"
   },
   "devDependencies": {
     "babel-jest": "20.0.3",
