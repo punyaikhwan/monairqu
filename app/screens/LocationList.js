@@ -7,7 +7,8 @@ import {
   Dimensions,
   Alert,
   ActivityIndicator,
-  TouchableHighlight
+  TouchableHighlight,
+  NetInfo
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import Icon from 'react-native-vector-icons/Entypo';
@@ -50,7 +51,12 @@ class LocationList extends Component {
     }
   }
 
-  closeActivityIndicator = () => setTimeout(() => this.setState({ loadPlace: false }), 1000)
+  closeActivityIndicator(){
+    setTimeout(() => {
+      if (this.state.listShowedLoc.length === 0) {
+        Actions.refresh(this.state.listShowedLoc);
+      }}, 500);
+  }
 
   componentWillMount() {
     this.setState({listShowedLoc: this.props.listShowedLoc !== undefined ? this.props.listShowedLoc : []});
@@ -59,7 +65,6 @@ class LocationList extends Component {
 
   componentDidMount() {
     this.setState({listShowedLoc: this.getAllAddress(this.state.statusList, this.state.city)});
-    this.closeActivityIndicator();
   }
   render() {
     return (
@@ -73,8 +78,6 @@ class LocationList extends Component {
                 this.setState({locIndex: i});
                 this.setState({listShowedLoc: this.getAllAddress(this.state.statusList, this.state.city)});
                 this.setState({loadPlace: true});
-                this.closeActivityIndicator();
-                console.log(this.state.listShowedLoc);
               }
             }
             mode="dropdown"
@@ -95,7 +98,6 @@ class LocationList extends Component {
                 this.setState({city});
                 this.setState({listShowedLoc: this.getAllAddress(this.state.statusList, city)});
                 this.setState({loadPlace: true});
-                this.closeActivityIndicator();
               }
             }
             mode="dropdown"
@@ -156,32 +158,44 @@ class LocationList extends Component {
     var temperature;
     var j = 0;
     var responseContainer = [];
-    statusList.map((status, i) => {
-      fetch("http://maps.googleapis.com/maps/api/geocode/json?latlng="+status.latlng.latitude+","+status.latlng.longitude+"&sensor=true")
-      .then((response) => response.json())
-      .then((response) => {
-        if (response.results[0].formatted_address.indexOf(city) !== -1) {
-          placeName = response.results[0].address_components[0].long_name+" "+response.results[0].address_components[1].long_name;
-          var tempArr = {
-            sensorId : status.sensorId,
-            latlng : status.latlng,
-            description : status.description,
-            placeNameShort : placeName,
-            placeNameLong : response.results[0].formatted_address,
-            quality : status.quality,
-            co : status.co,
-            temperature : status.temperature,
-          }
-          responseContainer[j] = tempArr;
-          j = j+1;
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-      })
-      .done(() => {
-      })
-    })
+    NetInfo.isConnected.fetch().then(isConnected => {
+      if (isConnected) {
+        console.log("ONLINE");
+        console.log(statusList.length);
+        statusList.map((status, i) => {
+          fetch("http://maps.googleapis.com/maps/api/geocode/json?latlng="+status.latlng.latitude+","+status.latlng.longitude+"&sensor=true")
+          .then((response) => response.json())
+          .then((response) => {
+            if (response.results[0].formatted_address.indexOf(city) !== -1) {
+              placeName = response.results[0].address_components[0].long_name+" "+response.results[0].address_components[1].long_name;
+              var tempArr = {
+                sensorId : status.sensorId,
+                latlng : status.latlng,
+                description : status.description,
+                placeNameShort : placeName,
+                placeNameLong : response.results[0].formatted_address,
+                quality : status.quality,
+                co : status.co,
+                temperature : status.temperature,
+              }
+              responseContainer[j] = tempArr;
+              j = j+1;
+            }
+          })
+          .catch((error) => {
+
+          })
+          .done(() => {
+            setTimeout(() => this.setState({loadPlace: false}), 1000);
+            console.log(responseContainer);
+          })
+        })
+      } else {
+        console.log("OFFLINE");
+        setTimeout(() => {responseContainer = this.getAllAddress(statusList, city)}, 1000);
+        setTimeout(() => {this.setState({listShowedLoc: responseContainer})}, 1500);
+      }
+    });
     return responseContainer;
   }
   getViewAddress(latlng, i) {
