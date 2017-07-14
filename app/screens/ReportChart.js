@@ -63,7 +63,7 @@ class ReportChart extends Component {
       console.log(response);
      })
     .catch((error) => {
-      console.error(error);
+      
     });
     this.state = {
       isDateTimePickerVisible: false,

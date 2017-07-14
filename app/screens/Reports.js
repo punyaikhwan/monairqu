@@ -348,7 +348,7 @@ class Reports extends Component {
       this.setState({textLocation:response.results[0].formatted_address});
      })
     .catch((error) => {
-      console.error(error);
+      
     });
 
 
