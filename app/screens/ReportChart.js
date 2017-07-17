@@ -51,26 +51,16 @@ var bluetrans ="rgba(137,191,255,0.6)";
 //get Data
 var date = new Date();
 var tomorrow = new Date();
+var yesterday = new Date();
 class ReportChart extends Component {
   constructor(props) {
     super(props);
-
+    yesterday.setDate(yesterday.getDate()-1);
     tomorrow.setDate(tomorrow.getDate()+1);
     var dateDown = dateFormat(date, "yyyy-mm-dd");
     console.log(dateDown);
     var dateUp = dateFormat(tomorrow, "yyyy-mm-dd");
-    console.log(dateUp),
-    console.log(this.props.sensorId),
-    //mount hari, load dari internet
-    // http://api.monairqu.labs.skyshi.com/airquality?sensor_id=abc123&createdAt[$lte]=2017-07-10&createdAt[$gte]=2017-07-08
-    fetch("http://api.monairqu.labs.skyshi.com/airquality?sensor_id="+this.props.sensorId+"&createdAt[$lte]="+dateUp+"&createdAt[$gte]="+dateDown)
-    .then((response) => response.text())
-    .then((response) => {
-      console.log(response);
-     })
-    .catch((error) => {
-
-    });
+    console.log(dateUp);
     this.state = {
       isDateTimePickerVisible: false,
       comparedDate: null,
@@ -876,9 +866,6 @@ class ReportChart extends Component {
                     onSelect={this.handleSelectWeek.bind(this)}
                   />
                 </View>
-                <Text style={styles.addDay} onPress={this._showDateTimePicker}>
-                {"+ Add day "}
-                </Text>
               </View>
             }
             {this.state.indexTab === 2 &&
@@ -912,9 +899,6 @@ class ReportChart extends Component {
                     onSelect={this.handleSelectMonth.bind(this)}
                   />
                 </View>
-                <Text style={styles.addDay} onPress={this._showDateTimePicker}>
-                {"+ Add day "}
-                </Text>
               </View>
             }
 
@@ -980,7 +964,7 @@ class ReportChart extends Component {
           isVisible={this.state.isDateTimePickerVisible}
           onConfirm={this._handleDatePicked}
           onCancel={this._hideDateTimePicker}
-          maximumDate={date}
+          maximumDate={yesterday}
         />
       </View>
     );

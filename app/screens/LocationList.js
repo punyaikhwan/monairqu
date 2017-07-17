@@ -112,6 +112,7 @@ class LocationList extends Component {
             selectedValue={this.state.province}
             onValueChange={
               (province, i) => {
+                console.log(i);
                 this.setState({province: province});
                 this.setState({locIndex: i});
                 this.setState({listShowedLoc: this.getAllAddress(this.state.statusList, this.state.city)});
@@ -158,6 +159,13 @@ class LocationList extends Component {
           />
         }
 
+        {this.state.listShowedLoc.length === 0 && this.state.loadPlace === false &&
+          <View style={{marginTop: 20,justifyContent: 'center', alignItems: 'center'}}>
+            <Text style={styles.textNamePlace}>
+              {"No data found for "+this.state.city+", "+this.state.locationList[this.state.locIndex].province+"."}
+            </Text>
+          </View>
+        }
         {this.state.listShowedLoc.map((items, i) => (
           <TouchableHighlight key={i} style={{width: width, height: 50}} onPress={() =>
             Actions.chart({sensorId: items.sensorId, textLocation: items.placeNameLong, quality: items.quality})}>
@@ -200,7 +208,6 @@ class LocationList extends Component {
     NetInfo.isConnected.fetch().then(isConnected => {
       if (isConnected) {
         console.log("ONLINE");
-        console.log(statusList.length);
         statusList.map((status, i) => {
           fetch("http://maps.googleapis.com/maps/api/geocode/json?latlng="+status.latlng.latitude+","+status.latlng.longitude+"&sensor=true")
           .then((response) => response.json())
@@ -226,7 +233,6 @@ class LocationList extends Component {
           })
           .done(() => {
             setTimeout(() => this.setState({loadPlace: false}), 1000);
-            console.log(responseContainer);
           })
         })
       } else {

@@ -15,27 +15,36 @@ export default class ControlPanel extends Component {
   render() {
     return (
       <View style={styles.controlPanel}>
+        <TouchableHighlight onPress={() => {Actions.reportsMap()}}>
         <View style={styles.titleControlPanel}>
           <Text style={styles.controlPanelWelcome}>
             AIR SKY
           </Text>
         </View>
+        </TouchableHighlight>
+
         <TouchableHighlight onPress={() => {Actions.reportsMap()}}>
-          <Text style={styles.controlPanelMenu}>
-            Map
-          </Text>
+          <View style={styles.controlPanelMenuContainer}>
+            <Text style={styles.controlPanelMenu}>
+              Map
+            </Text>
+          </View>
         </TouchableHighlight>
 
         <TouchableHighlight onPress={() => {Actions.chart()}}>
-        <Text style={styles.controlPanelMenu}>
-          Report Chart
-        </Text>
+          <View style={styles.controlPanelMenuContainer}>
+            <Text style={styles.controlPanelMenu}>
+              Report Chart
+            </Text>
+          </View>
         </TouchableHighlight>
 
         <TouchableHighlight onPress={() => {Actions.locationList()}}>
-        <Text style={styles.controlPanelMenu}>
-          Location List
-        </Text>
+          <View style={styles.controlPanelMenuContainer}>
+            <Text style={styles.controlPanelMenu}>
+              Location List
+            </Text>
+          </View>
         </TouchableHighlight>
       </View>
     )

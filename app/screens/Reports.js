@@ -145,6 +145,85 @@ class Reports extends Component {
         />
       }
 
+        <View style={styles.legenda}>
+          <Image source={require('../images/borobudur_sunrise_tour_16_copy.jpg')}
+            style={styles.imageLoc}/>
+          <View style={styles.legendakanan}>
+            <View style={styles.legendaatas}>
+            <View style={styles.textLocContainer}>
+              <ScrollView style={{flex:1}}>
+                <Text style={styles.textLoc}>
+                  {this.state.textLocation}
+                </Text>
+              </ScrollView>
+            </View>
+              <TouchableHighlight style={styles.detailBtn} underlayColor={"rgba(0,0,0,0)"} onPress={() =>
+                Actions.chart({sensorId: this.state.sensorId, textLocation: this.state.textLocation, quality: this.state.quality})}>
+                <View style={styles.detailBtnContainer}>
+                <Text style={styles.detailBtnText}>
+                  Details
+                </Text>
+                </View>
+              </TouchableHighlight>
+
+            </View>
+            <View style={styles.legendabawah}>
+              {this.state.status === 3 &&
+                <View style={styles.statusRedContainer}>
+                  <Text style={styles.statusText}>
+                    {statusRedText}
+                  </Text>
+                </View>
+              }
+              {this.state.status === 2 &&
+                <View style={styles.statusOrangeContainer}>
+                  <Text style={styles.statusText}>
+                    {statusOrangeText}
+                  </Text>
+                </View>
+              }
+              {this.state.status === 1 &&
+                <View style={styles.statusYellowContainer}>
+                  <Text style={styles.statusText}>
+                    {statusYellowText}
+                  </Text>
+                </View>
+              }
+              {this.state.status === 0 &&
+                <View style={styles.statusBlueContainer}>
+                  <Text style={styles.statusText}>
+                    {statusBlueText}
+                  </Text>
+                </View>
+              }
+
+              <TouchableHighlight onPress={()=>this.toggleStatus(0)} underlayColor={"rgba(0,0,0,0)"}>
+              <Image source={this.state.run === 0 ? require('../images/run_blue.png') :
+                (this.state.run === 1 ? require('../images/run_yellow.png'):
+                (this.state.run === 2 ? require('../images/run_orange.png') :
+                require('../images/run_red.png')))}
+                style={this.state.selectedImageRecommend === 0 ? styles.imageRecommendSelected : styles.imageRecommend}/>
+              </TouchableHighlight>
+
+              <TouchableHighlight onPress={()=>this.toggleStatus(1)} underlayColor={"rgba(0,0,0,0)"}>
+              <Image source={this.state.bycicle === 0 ? require('../images/bycicle_blue.png') :
+                (this.state.bycicle === 1 ? require('../images/bycicle_yellow.png'):
+                (this.state.bycicle === 2 ? require('../images/bycicle_orange.png'):
+                require('../images/bycicle_red.png')))}
+                style={this.state.selectedImageRecommend === 1 ? styles.imageRecommendSelected : styles.imageRecommend}/>
+              </TouchableHighlight>
+
+              <TouchableHighlight onPress={()=>this.toggleStatus(2)} underlayColor={"rgba(0,0,0,0)"}>
+              <Image source={this.state.baby === 0 ? require('../images/baby_blue.png') :
+                (this.state.baby === 1 ? require('../images/baby_yellow.png'):
+                (this.state.baby === 2 ? require('../images/baby_orange.png'):
+                require('../images/baby_red.png')))}
+                style={this.state.selectedImageRecommend === 2 ? styles.imageRecommendSelected : styles.imageRecommend}/>
+              </TouchableHighlight>
+            </View>
+          </View>
+        </View>
+
         <MapView
           style={styles.map}
           mapType="standard"
@@ -224,85 +303,6 @@ class Reports extends Component {
           </MapView.Marker>
         ))}
         </MapView>
-
-        <View style={styles.legenda}>
-          <Image source={require('../images/borobudur_sunrise_tour_16_copy.jpg')}
-            style={styles.imageLoc}/>
-          <View style={styles.legendakanan}>
-            <View style={styles.legendaatas}>
-            <View style={styles.textLocContainer}>
-              <ScrollView style={{flex:1}}>
-                <Text style={styles.textLoc}>
-                  {this.state.textLocation}
-                </Text>
-              </ScrollView>
-            </View>
-              <TouchableHighlight style={styles.detailBtn} underlayColor={"rgba(0,0,0,0)"} onPress={() =>
-                Actions.chart({sensorId: this.state.sensorId, textLocation: this.state.textLocation, quality: this.state.quality})}>
-                <View style={styles.detailBtnContainer}>
-                <Text style={styles.detailBtnText}>
-                  Details
-                </Text>
-                </View>
-              </TouchableHighlight>
-
-            </View>
-            <View style={styles.legendabawah}>
-              {this.state.status === 3 &&
-                <View style={styles.statusRedContainer}>
-                  <Text style={styles.statusText}>
-                    {statusRedText}
-                  </Text>
-                </View>
-              }
-              {this.state.status === 2 &&
-                <View style={styles.statusOrangeContainer}>
-                  <Text style={styles.statusText}>
-                    {statusOrangeText}
-                  </Text>
-                </View>
-              }
-              {this.state.status === 1 &&
-                <View style={styles.statusYellowContainer}>
-                  <Text style={styles.statusText}>
-                    {statusYellowText}
-                  </Text>
-                </View>
-              }
-              {this.state.status === 0 &&
-                <View style={styles.statusBlueContainer}>
-                  <Text style={styles.statusText}>
-                    {statusBlueText}
-                  </Text>
-                </View>
-              }
-
-              <TouchableHighlight onPress={()=>this.toggleStatus(0)} underlayColor={"rgba(0,0,0,0)"}>
-              <Image source={this.state.run === 0 ? require('../images/run_blue.png') :
-                (this.state.run === 1 ? require('../images/run_yellow.png'):
-                (this.state.run === 2 ? require('../images/run_orange.png') :
-                require('../images/run_red.png')))}
-                style={this.state.selectedImageRecommend === 0 ? styles.imageRecommendSelected : styles.imageRecommend}/>
-              </TouchableHighlight>
-
-              <TouchableHighlight onPress={()=>this.toggleStatus(1)} underlayColor={"rgba(0,0,0,0)"}>
-              <Image source={this.state.bycicle === 0 ? require('../images/bycicle_blue.png') :
-                (this.state.bycicle === 1 ? require('../images/bycicle_yellow.png'):
-                (this.state.bycicle === 2 ? require('../images/bycicle_orange.png'):
-                require('../images/bycicle_red.png')))}
-                style={this.state.selectedImageRecommend === 1 ? styles.imageRecommendSelected : styles.imageRecommend}/>
-              </TouchableHighlight>
-
-              <TouchableHighlight onPress={()=>this.toggleStatus(2)} underlayColor={"rgba(0,0,0,0)"}>
-              <Image source={this.state.baby === 0 ? require('../images/baby_blue.png') :
-                (this.state.baby === 1 ? require('../images/baby_yellow.png'):
-                (this.state.baby === 2 ? require('../images/baby_orange.png'):
-                require('../images/baby_red.png')))}
-                style={this.state.selectedImageRecommend === 2 ? styles.imageRecommendSelected : styles.imageRecommend}/>
-              </TouchableHighlight>
-            </View>
-          </View>
-        </View>
 
         <TouchableHighlight style={styles.mylocBtn} underlayColor={"rgba(0,0,0,0)"} onPress={this._onPressButton}>
           <View style={styles.myLocBtnContainer}>
@@ -492,9 +492,8 @@ const styles = StyleSheet.create({
   },
  map: {
     top: 0,
-    left: 0,
     width:width,
-    flex:1,
+    height: height-113,
     zIndex:-1
   },
   legenda: {
@@ -503,7 +502,6 @@ const styles = StyleSheet.create({
     marginTop:72,
     backgroundColor: '#172c41',
     flexDirection: "row",
-    position: 'absolute'
   },
   imageLoc: {
     width:88,

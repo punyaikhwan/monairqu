@@ -9,6 +9,9 @@ import SimpleTab from './screens/SimpleTab';
 import LineChartScreen from './screens/LineChartScreen';
 import LocationList from './screens/LocationList';
 import Icon from 'react-native-vector-icons/Entypo';
+import Drawer from 'react-native-drawer';
+import MyControlPanel from './ControlPanel';
+import tweens from './tweens';
 
 const drawerStyles = {
   drawer: {
@@ -18,9 +21,6 @@ const drawerStyles = {
   }
 }
 
-import Drawer from 'react-native-drawer';
-import MyControlPanel from './ControlPanel';
-import tweens from './tweens';
 
 let counter = 0;
 
@@ -28,7 +28,7 @@ class App extends Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      drawerType: 'overlay',
+      drawerType: 'static',
       openDrawerOffset:100,
       closedDrawerOffset:0,
       panOpenMask: .1,
@@ -42,8 +42,8 @@ class App extends Component {
       tweenHandlerPreset: null,
       acceptDoubleTap: false,
       acceptTap: false,
-      acceptPan: true,
-      tapToClose: false,
+      acceptPan: false,
+      tapToClose: true,
       negotiatePan: false,
       side: "left",
       open: false
