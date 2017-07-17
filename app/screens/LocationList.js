@@ -26,28 +26,8 @@ class LocationList extends Component {
      renderContent: null,
      listShowedLoc: [],
      element: null,
-     locationList: [
-       {
-         province: "Yogyakarta",
-         kabupaten: ["Sleman", "Bantul", "Gunung Kidul", "Kulon Progo"]
-       },
-       {
-         province: "Jakarta",
-         kabupaten: ["Jakarta Pusat", "Jakarta Utara", "Jakarta Selatan", "Jakarta Timur", "Jakarta Barat"]
-       },
-       {
-         province: "Jawa Barat",
-         kabupaten: ["Kota Bandung", "Tasikmalaya", "Indramayu", "Sumedang", "Cimahi"]
-       },
-     ],
-     statusList: [
-       {sensorId: "abc123", latlng: {latitude: -7.770167, longitude: 110.346807},
-         description: "Di sini sensor 1", quality: 15, co: 280, temperature: 27},
-       {sensorId: "abc124", latlng: {latitude: -7.772000, longitude: 110.347630},
-         description: "Di sini sensor 2", quality: 75, co: 290, temperature: 29},
-       {sensorId: "abc125", latlng: {latitude: -7.773316, longitude: 110.344091},
-         description: "Di sini sensor 3", quality: 100, co: 300, temperature: 28},
-     ]
+     locationList: [],
+     statusList: []
     }
   }
 
@@ -59,16 +39,71 @@ class LocationList extends Component {
   }
 
   componentWillMount() {
+    this.getAllLocations();
+    this.getAllStatusList();
     this.setState({listShowedLoc: this.props.listShowedLoc !== undefined ? this.props.listShowedLoc : []});
-    this.setState({listShowedLoc: this.getAllAddress(this.state.statusList, this.state.city)});
   }
 
-  componentDidMount() {
-    this.setState({listShowedLoc: this.getAllAddress(this.state.statusList, this.state.city)});
+  getAllLocations() {
+    var locations = [];
+    NetInfo.isConnected.fetch().then(isConnected => {
+      if (isConnected) {
+        console.log("ONLINE");
+        fetch("https://monairqu.firebaseio.com/locationlist/-KpDK6iurgbQx2o4LfkZ.json")
+        .then((response) => response.json())
+        .then((response) => {
+          locations = response
+        })
+        .catch((error) => {
+
+        })
+        .done(() => {
+          this.setState({locationList: locations});
+          this.setState({isLoadingLoc: false});
+        })
+      } else {
+        console.log("OFFLINE");
+        setTimeout(() => {this.getAllLocations()}, 1000);
+      }
+    });
+  }
+
+  getAllStatusList() {
+    var getMarkers = [];
+    NetInfo.isConnected.fetch().then(isConnected => {
+      if (isConnected) {
+        console.log("ONLINE");
+        fetch("https://monairqu.firebaseio.com/markers.json")
+        .then((response) => response.json())
+        .then((response) => {
+          getMarkers = response
+        })
+        .catch((error) => {
+
+        })
+        .done(() => {
+          this.setState({statusList: getMarkers});
+          this.setState({isLoadingStatusList: false});
+          this.setState({listShowedLoc: this.getAllAddress(this.state.statusList, this.state.city)});
+        })
+      } else {
+        console.log("OFFLINE");
+        setTimeout(() => {this.getAllStatusList()}, 1000);
+      }
+    });
   }
   render() {
     return (
       <View style={styles.container}>
+        {this.state.isLoadingLoc === true && this.state.isLoadingStatusList === true &&
+          <ActivityIndicator
+             animating = {this.state.isLoading}
+             color = '#bc2b78'
+             size = "large"
+             style = {styles.activityIndicator}
+          />
+        }
+        {this.state.isLoadingLoc === false && this.state.isLoadingStatusList === false &&
         <View style={styles.selectPlace}>
           <Picker
             selectedValue={this.state.province}
@@ -89,7 +124,8 @@ class LocationList extends Component {
           </Picker>
           <Icon style={styles.dropdownIcon} name="chevron-small-down" size={30} color='white'/>
         </View>
-
+      }
+      {this.state.isLoadingLoc === false && this.state.isLoadingStatusList === false &&
         <View style={styles.selectPlace}>
           <Picker
             selectedValue={this.state.city}
@@ -109,7 +145,7 @@ class LocationList extends Component {
           </Picker>
           <Icon style={styles.dropdownIcon} name="chevron-small-down" size={30} color='white'/>
         </View>
-
+        }
         {this.state.loadPlace === true &&
           <ActivityIndicator
              animating = {this.state.loadPlace}

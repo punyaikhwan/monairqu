@@ -20,11 +20,6 @@ export default class ControlPanel extends Component {
             AIR SKY
           </Text>
         </View>
-        <TouchableHighlight onPress={() => {Actions.hello()}}>
-          <Text style={styles.controlPanelMenu}>
-            Hello
-          </Text>
-        </TouchableHighlight>
         <TouchableHighlight onPress={() => {Actions.reportsMap()}}>
           <Text style={styles.controlPanelMenu}>
             Map
@@ -33,19 +28,13 @@ export default class ControlPanel extends Component {
 
         <TouchableHighlight onPress={() => {Actions.chart()}}>
         <Text style={styles.controlPanelMenu}>
-          ReportChart
+          Report Chart
         </Text>
         </TouchableHighlight>
 
         <TouchableHighlight onPress={() => {Actions.locationList()}}>
         <Text style={styles.controlPanelMenu}>
           Location List
-        </Text>
-        </TouchableHighlight>
-
-        <TouchableHighlight onPress={() => {Actions.tab()}}>
-        <Text style={styles.controlPanelMenu}>
-          Tab
         </Text>
         </TouchableHighlight>
       </View>

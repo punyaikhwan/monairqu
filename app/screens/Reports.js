@@ -9,8 +9,12 @@ import {
   Dimensions,
   Image,
   TouchableHighlight,
-  ScrollView
+  ScrollView,
+  ActivityIndicator,
+  NetInfo,
+  AsyncStorage
 } from 'react-native';
+import dateFormat from 'dateformat';
 import MapView from 'react-native-maps';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import update from 'immutability-helper';
@@ -36,11 +40,13 @@ var yellowtrans = "rgba(246,215,35,0.6)";
 var orangetrans = "rgba(246, 166, 35,0.6)";
 var bluetrans ="rgba(137,191,255,0.6)";
 
+var date = new Date();
+var formatted_date = dateFormat(date, "yyyy-mm-dd");
+var hour = dateFormat(date, "H");
 class Reports extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isDateTimePickerVisible: false,
       isStatusPressed: false,
       selectedPlace: 0,
       sensorId: null,
@@ -50,26 +56,39 @@ class Reports extends Component {
       bycicle: 0,
       baby: 0,
       status: 0,
+      date : formatted_date,
+      hour: hour,
+      isLoading: true,
       region: {
         latitude: -7.7712196,
         longitude: 110.3473598,
         latitudeDelta: 0.0122,
         longitudeDelta: 0.0121,
       },
-      markers: [
-        {sensorId: "abc123", latlng: {latitude: -7.770167, longitude: 110.346807},
-          description: "Di sini sensor 1", quality: 15, co: 280, temperature: 27},
-        {sensorId: "abc124", latlng: {latitude: -7.772000, longitude: 110.347630},
-          description: "Di sini sensor 2", quality: 75, co: 290, temperature: 29},
-        {sensorId: "abc125", latlng: {latitude: -7.773316, longitude: 110.344091},
-          description: "Di sini sensor 3", quality: 100, co: 300, temperature: 28},
-      ]
+      markers: []
     };
     this.onRegionChange = this.onRegionChange.bind(this);
   }
 
-  componentWillMount() {
-    this._onSelectPlace(0, this.state.markers[0].latlng.latitude, this.state.markers[0].latlng.longitude, this.state.markers[0].quality);
+  async componentWillMount() {
+    this.getAllAddress();
+    try {
+      await AsyncStorage.setItem('date', this.state.date);
+    } catch (error) {
+      console.log("Error saving date.");
+    }
+
+    try {
+      await AsyncStorage.setItem('flag','0');
+    } catch (error) {
+      console.log("Error saving flag.");
+    }
+
+    try {
+      await AsyncStorage.setItem('hour', String(this.state.hour));
+    } catch (error) {
+      console.log("Error saving hour")
+    }
   }
 
   componentDidMount() {
@@ -86,6 +105,30 @@ class Reports extends Component {
     );
   }
 
+  getAllAddress() {
+    var getMarkers = [];
+    NetInfo.isConnected.fetch().then(isConnected => {
+      if (isConnected) {
+        console.log("ONLINE");
+        fetch("https://monairqu.firebaseio.com/markers.json")
+        .then((response) => response.json())
+        .then((response) => {
+          getMarkers = response
+        })
+        .catch((error) => {
+
+        })
+        .done(() => {
+          this.setState({markers: getMarkers});
+          this.setState({isLoading: false});
+          this._onSelectPlace(0, this.state.markers[0].latlng.latitude, this.state.markers[0].latlng.longitude, this.state.markers[0].quality);
+        })
+      } else {
+        console.log("OFFLINE");
+        setTimeout(() => {this.getAllAddress()}, 1000);
+      }
+    });
+  }
   onRegionChange(region) {
     this.setState({region});
   }
@@ -93,6 +136,15 @@ class Reports extends Component {
   render() {
     return (
       <View style={styles.container}>
+      {this.state.isLoading === true &&
+        <ActivityIndicator
+           animating = {this.state.isLoading}
+           color = '#bc2b78'
+           size = "large"
+           style = {styles.activityIndicator}
+        />
+      }
+
         <MapView
           style={styles.map}
           mapType="standard"
@@ -327,9 +379,21 @@ class Reports extends Component {
 
   }
 
-  _onSelectPlace(i, lat, lng, quality) {
+  async setLocTextForShare() {
+    try {
+      await AsyncStorage.setItem('location', this.state.textLocation);
+    } catch (error) {
+      console.log("Error saving location.");
+    }
+  }
+ async _onSelectPlace(i, lat, lng, quality) {
     this.setState({selectedPlace: i});
     this.setState({sensorId: this.state.markers[i].sensorId});
+    try {
+      await AsyncStorage.setItem('quality', String(quality));
+    } catch (error) {
+      console.log("Error saving quality.");
+    }
 
     this.setState({
       region: {
@@ -348,10 +412,11 @@ class Reports extends Component {
       this.setState({textLocation:response.results[0].formatted_address});
      })
     .catch((error) => {
-      
+
+    })
+    .done(() => {
+      this.setLocTextForShare();
     });
-
-
     //Untuk baby
     if (quality <= 40) {
       this.setState({baby: 3}); //bahaya
@@ -718,6 +783,14 @@ const styles = StyleSheet.create({
     textAlignVertical: 'center',
     width: width-72-34,
   },
+  activityIndicator: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: height,
+      width: width,
+      position: 'absolute',
+   }
 });
 
 export default Reports;

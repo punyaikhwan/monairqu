@@ -12,7 +12,9 @@ import {
   Alert,
   TouchableHighlight,
   TouchableOpacity,
-  AsyncStorage
+  AsyncStorage,
+  ActivityIndicator,
+  NetInfo
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Entypo';
 import DateTimePicker from 'react-native-modal-datetime-picker';
@@ -63,7 +65,7 @@ class ReportChart extends Component {
       console.log(response);
      })
     .catch((error) => {
-      
+
     });
     this.state = {
       isDateTimePickerVisible: false,
@@ -82,6 +84,7 @@ class ReportChart extends Component {
       data: {},
       selectedImageRecommend: null,
       quality: this.props.quality,
+      sensorId: this.props.sensorId,
       co: null,
       temperature: null,
       run: 0,
@@ -90,6 +93,8 @@ class ReportChart extends Component {
       status: 0,
       isComparing: false,
       isShowToday: true,
+      isLoading: true,
+      isLoadingCompare: false,
       legend: {
         enabled: false,
         textColor: processColor('blue'),
@@ -114,84 +119,8 @@ class ReportChart extends Component {
         textColor: processColor('white'),
 
       },
-      statusquality: {
-        sensorId: "abc123",
-        airquality: {
-          day: [
-            {y:90}, {y:87}, {y:80}, {y:78}, {y:80}, {y:75}, {y:68}, {y:65}, {y:60}, {y:65}, {y:70}, {y:65},
-            {y:50}, {y:60}, {y:55}, {y:65}, {y:70}, {y:78}, {y:85}, {y:85}, {y:86}, {y:80}, {y:85}, {y:90}
-          ],
-          week: [
-            {y:80}, {y:70}, {y:70}, {y:80}, {y:60}, {y:55}, {y:82}
-          ],
-          month: [
-            {y:80}, {y:80}, {y:75}, {y:70}
-          ]
-        },
-        co: {
-          day: [
-            290, 287, 280, 278, 280, 275, 268, 265, 260, 265, 270, 265,
-            250, 260, 255, 265, 270, 278, 285, 285, 286, 280, 285, 290
-          ],
-          week: [
-            280, 270, 270, 280, 260, 255, 282
-          ],
-          month: [
-            280, 280, 275, 270
-          ]
-        },
-        temperature: {
-          day: [
-            20, 22, 23, 23, 22, 24, 27, 28, 29, 29, 30, 30,
-            31, 32, 29, 28, 26, 25, 25, 24, 23, 22, 22, 22
-          ],
-          week: [
-            30, 31, 28, 30, 32, 29, 28
-          ],
-          month: [
-            29, 30, 33, 30
-          ]
-        }
-      },
-      statusCompare: {
-        sensorId: "abc123",
-        airquality: {
-          day: [
-            {y:60}, {y:77}, {y:90}, {y:78}, {y:80}, {y:55}, {y:50}, {y:35}, {y:70}, {y:45}, {y:50}, {y:55},
-            {y:50}, {y:62}, {y:57}, {y:69}, {y:76}, {y:85}, {y:85}, {y:80}, {y:88}, {y:85}, {y:80}, {y:90}
-          ],
-          week: [
-            {y:78}, {y:68}, {y:75}, {y:60}, {y:70}, {y:60}, {y:72}
-          ],
-          month: [
-            {y:86}, {y:85}, {y:76}, {y:79}
-          ]
-        },
-        co: {
-          day: [
-            290, 287, 280, 278, 280, 275, 268, 265, 260, 265, 270, 265,
-            250, 260, 255, 265, 270, 278, 285, 285, 286, 280, 285, 290
-          ],
-          week: [
-            280, 270, 270, 280, 260, 255, 282
-          ],
-          month: [
-            280, 280, 275, 270
-          ]
-        },
-        temperature: {
-          day: [
-            20, 22, 23, 23, 22, 24, 27, 28, 29, 29, 30, 30,
-            31, 32, 29, 28, 26, 25, 25, 24, 23, 22, 22, 22
-          ],
-          week: [
-            30, 31, 28, 30, 32, 29, 28
-          ],
-          month: [
-            29, 30, 33, 30
-          ]
-        }
-      }
+      statusquality: {},
+      statusCompare: {},
     };
   }
 
@@ -202,7 +131,38 @@ class ReportChart extends Component {
       });
   }
 
+  getThisStatusQuality(sensorId) {
+    var getStatus = [];
+    NetInfo.isConnected.fetch().then(isConnected => {
+      if (isConnected) {
+        console.log("ONLINE");
+        fetch("https://monairqu.firebaseio.com/reports/-KpAwRxjjCMxLQ51ocDP.json")
+        .then((response) => response.json())
+        .then((response) => {
+          getStatus = response
+        })
+        .catch((error) => {
+
+        })
+        .done(() => {
+          this.setState({statusquality: getStatus});
+          this.setState({isLoading: false});
+          console.log(this.state.statusquality);
+          var entry = this.state.statusquality;
+          this.setState({quality: entry.airquality.day[this.state.hour].y});
+          this.setState({co: entry.co.day[this.state.hour]});
+          this.setState({temperature: entry.temperature.day[this.state.hour]});
+          this.setStatusValue();
+        })
+      } else {
+        console.log("OFFLINE");
+        setTimeout(() => {this.getThisStatusQuality(sensorId)}, 1000);
+      }
+    });
+  }
+
   async componentWillMount() {
+    this.getThisStatusQuality(this.state.sensorId);
     try {
       await AsyncStorage.setItem('location', this.props.textLocation);
     } catch (error) {
@@ -214,19 +174,15 @@ class ReportChart extends Component {
     } catch (error) {
       console.log("Error saving date.");
     }
-    var entry = this.state.statusquality;
-    this.setState({quality: entry.airquality.day[this.state.hour].y});
-    this.setState({co: entry.co.day[this.state.hour]});
-    this.setState({temperature: entry.temperature.day[this.state.hour]});
   }
 
-  componentDidMount() {
+  setStatusValue() {
     this.setState(
       update(this.state, {
         dataDay: {
           $set: {
             dataSets: [{
-              values: this.state.statusquality.airquality.day,
+              values: (this.state.statusquality.length !== 0 ? this.state.statusquality.airquality.day : []),
               label: 'CO',
               config: {
                 lineWidth: 2,
@@ -272,7 +228,7 @@ class ReportChart extends Component {
         dataWeek: {
           $set: {
             dataSets: [{
-              values: this.state.statusquality.airquality.week,
+              values: (this.state.statusquality.length !== 0 ? this.state.statusquality.airquality.week : []),
               label: 'CO',
               config: {
                 lineWidth: 2,
@@ -316,7 +272,7 @@ class ReportChart extends Component {
         dataMonth: {
           $set: {
             dataSets: [{
-              values: this.state.statusquality.airquality.month,
+              values: (this.state.statusquality.length !== 0 ? this.state.statusquality.airquality.month : []),
               label: 'CO',
               config: {
                 lineWidth: 2,
@@ -357,44 +313,66 @@ class ReportChart extends Component {
   }
 
   addToCompareData() {
-    this.setState(
-      update(this.state, {
-        dataDay: {
-          $set: {
-            dataSets: [{
-              values: this.state.statusquality.airquality.day,
-              label: 'CO',
-              config: {
-                lineWidth: 2,
-                drawCircles: true,
-                highlightColor: processColor('#6caefb'),
-                color: processColor('#6caefb'),
-                drawFilled: true,
-                fillColor: processColor('#6caefb'),
-                fillAlpha: 60,
-                drawValues: false,
-                valueTextColor: processColor('white'),
+    var getStatus = [];
+    NetInfo.isConnected.fetch().then(isConnected => {
+      if (isConnected) {
+        console.log("ONLINE");
+        fetch("https://monairqu.firebaseio.com/reports/-KpDF5Sd9X3UIKdfa5bC.json")
+        .then((response) => response.json())
+        .then((response) => {
+          getStatus = response
+        })
+        .catch((error) => {
+
+        })
+        .done(() => {
+          this.setState({statusCompare: getStatus});
+          this.setState({isLoadingCompare: false});
+          console.log(this.state.statusCompare);
+          this.setState(
+            update(this.state, {
+              dataDay: {
+                $set: {
+                  dataSets: [{
+                    values: this.state.statusquality.airquality.day,
+                    label: 'CO',
+                    config: {
+                      lineWidth: 2,
+                      drawCircles: true,
+                      highlightColor: processColor('#6caefb'),
+                      color: processColor('#6caefb'),
+                      drawFilled: true,
+                      fillColor: processColor('#6caefb'),
+                      fillAlpha: 60,
+                      drawValues: false,
+                      valueTextColor: processColor('white'),
+                    }
+                  }, {
+                    values: this.state.statusCompare.airquality.day,
+                    label: 'CO',
+                    config: {
+                      lineWidth: 2,
+                      drawCircles: true,
+                      highlightColor: processColor('#ffff00'),
+                      color: processColor('#ffff00'),
+                      drawFilled: false,
+                      fillColor: processColor('#6caefb'),
+                      fillAlpha: 60,
+                      drawValues: false,
+                      valueTextColor: processColor('white'),
+                    }
+                  }
+                ],
+                }
               }
-            }, {
-              values: this.state.statusCompare.airquality.day,
-              label: 'CO',
-              config: {
-                lineWidth: 2,
-                drawCircles: true,
-                highlightColor: processColor('#ffff00'),
-                color: processColor('#ffff00'),
-                drawFilled: false,
-                fillColor: processColor('#6caefb'),
-                fillAlpha: 60,
-                drawValues: false,
-                valueTextColor: processColor('white'),
-              }
-            }
-          ],
-          }
-        }
-      })
-    );
+            })
+          );
+        })
+      } else {
+        console.log("OFFLINE");
+        setTimeout(() => {this.addToCompareData(this.state.sensorId)}, 1000);
+      }
+    });
     this.setState({isComparing: true});
   }
 
@@ -470,11 +448,6 @@ class ReportChart extends Component {
     this.setState({quality: (entry.x !== undefined ? this.state.statusquality.airquality.day[entry.x].y: this.state.quality)});
     this.setState({co: this.state.statusquality.co.day[this.state.hour-1]});
     this.setState({temperature: this.state.statusquality.temperature.day[this.state.hour]});
-    try {
-      await AsyncStorage.setItem('quality', String(this.state.quality));
-    } catch (error) {
-      console.log("Error saving quality.");
-    }
 
     try {
       await AsyncStorage.setItem('flag','0');
@@ -486,6 +459,13 @@ class ReportChart extends Component {
       await AsyncStorage.setItem('hour', String(this.state.hour));
     } catch (error) {
       console.log("Error saving hour")
+    }
+
+    try {
+      console.log(this.state.quality);
+      await AsyncStorage.setItem('quality', String(this.state.quality));
+    } catch (error) {
+      console.log("Error saving quality.");
     }
     this.changeStatus(this.state.quality);
   }
@@ -612,6 +592,7 @@ class ReportChart extends Component {
   render() {
     return (
       <View style={styles.container}>
+
         <Image source={require('../images/borobudur_sunrise_tour_16_copy.jpg')}
           style={styles.imageAnimationLegenda}/>
         <View style={styles.legenda}>
@@ -692,7 +673,7 @@ class ReportChart extends Component {
             <View style={styles.topSegmentDetail}>
               <Icon style={styles.iconUpDown} name="triangle-up" size={20} color="#50e3c2"/>
               <Text style={styles.textNumber}>
-                {this.state.co}
+                {this.state.isLoading === false ? this.state.co: "-"}
               </Text>
             </View>
             <Text style={styles.labelDetail}>
@@ -704,7 +685,7 @@ class ReportChart extends Component {
               <Icon style={styles.iconUpDown} name="triangle-up" size={20} color="#50e3c2"/>
               <View style={{flex:2, flexDirection:'row'}}>
                 <Text style={styles.textNumberTemp}>
-                  {this.state.statusquality.temperature.day[this.state.hour]}
+                  {this.state.isLoading === false ? this.state.statusquality.temperature.day[this.state.hour] : "-"}
                 </Text>
                 <Text style={{flex:2,fontSize:11, lineHeight:7, color: 'white'}}>
                   o
@@ -719,7 +700,7 @@ class ReportChart extends Component {
             <View style={styles.topSegmentDetail}>
               <Icon style={styles.iconUpDown} name="triangle-up" size={20} color="#50e3c2"/>
               <Text style={styles.textNumber}>
-                {this.state.quality+"%"}
+                {this.state.isLoading === false ? this.state.quality+"%" : "-"}
               </Text>
             </View>
             <Text style={styles.labelDetail}>
@@ -739,6 +720,22 @@ class ReportChart extends Component {
             activeTabStyle={styles.activeTabStyle}
             tabTextStyle={styles.tabTextStyle}
             activeTabTextStyle={styles.activeTabTextStyle} />
+            {this.state.isLoading === true &&
+              <ActivityIndicator
+                 animating = {this.state.isLoading}
+                 color = '#bc2b78'
+                 size = "large"
+                 style = {styles.activityIndicator}
+              />
+            }
+            {this.state.isLoadingCompare === true &&
+              <ActivityIndicator
+                 animating = {this.state.isLoadingCompare}
+                 color = '#bc2b78'
+                 size = "large"
+                 style = {styles.activityIndicator}
+              />
+            }
             {this.state.indexTab === 0 &&
               <View>
                 <View style={{width:width-20, height:200, flexDirection:'row'}}>
@@ -787,14 +784,14 @@ class ReportChart extends Component {
                       </Text>
                       <View style={{flex:1, flexDirection:'row'}}>
                         <Text style={styles.textTempPlace}>
-                          {this.state.statusquality.temperature.day[this.state.hour]}
+                          {this.state.isLoading === false ? this.state.statusquality.temperature.day[this.state.hour]:"-"}
                         </Text>
                         <Text style={{flex:1,fontSize:11, lineHeight:7, color: 'white'}}>
                           o
                         </Text>
                       </View>
                       <Text style={styles.textAirPlace}>
-                        {this.state.statusquality.airquality.day[this.state.hour].y+"%"}
+                        {this.state.isLoading === false ? this.state.statusquality.airquality.day[this.state.hour].y+"%" : "-"}
                       </Text>
                       {this.state.isShowToday === true &&
                         <TouchableOpacity style={styles.iconComparing} onPress={this.toggleShowToday.bind(this)}>
@@ -813,18 +810,18 @@ class ReportChart extends Component {
                         {this.state.comparedDate}
                       </Text>
                       <Text style={styles.textCOPlace}>
-                          {this.state.statusCompare.co.day[this.state.hour]}
+                          {this.state.isLoadingCompare === false ? this.state.statusCompare.co.day[this.state.hour] : "-"}
                       </Text>
                       <View style={{flex:1, flexDirection:'row'}}>
                         <Text style={styles.textTempPlace}>
-                          {this.state.statusCompare.temperature.day[this.state.hour]}
+                          {this.state.isLoadingCompare === false ? this.state.statusCompare.temperature.day[this.state.hour] : "-"}
                         </Text>
                         <Text style={{flex:1,fontSize:11, lineHeight:7, color: 'white'}}>
                           o
                         </Text>
                       </View>
                       <Text style={styles.textAirPlace}>
-                        {this.state.statusCompare.airquality.day[this.state.hour].y+"%"}
+                        {this.state.isLoadingCompare === false ? this.state.statusCompare.airquality.day[this.state.hour].y+"%" : "-"}
                       </Text>
                       <TouchableOpacity style={styles.iconComparing} onPress={this.closeCompare.bind(this)}>
                       <Icon name= "cross" size= {20} color = "#cfff00"/>
@@ -985,6 +982,7 @@ class ReportChart extends Component {
 
   _handleDatePicked = (date) => {
     this.setState({comparedDate: dateFormat(date, "ddd, dd mmm yyyy")});
+    this.setState({isLoadingCompare: true});
     console.log(this.state.comparedDate);
     this.addToCompareData();
     this._hideDateTimePicker();
@@ -1297,7 +1295,12 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     color: 'white'
-  }
+  },
+  activityIndicator: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+   }
 });
 
 export default ReportChart;

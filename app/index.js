@@ -83,7 +83,7 @@ class App extends Component {
         >
         <Router>
           <Scene key="root" navigationBarStyle={styles.navbarStyle} titleStyle={styles.title} >
-            <Scene key="reportsMap" component={Reports} title="Reports" initial={true} renderBackButton={()=>this.menuButton()} renderLeftButton={()=>this.menuButton()} renderRightButton={this.groupButton}/>
+            <Scene key="reportsMap" component={Reports} title="Reports" initial={true} renderBackButton={()=>this.menuButton()} renderLeftButton={()=>this.menuButton()} renderRightButton={()=>this.shareButton()}/>
             <Scene key="chart" component={ReportChart} title="Reports" initial={false} renderBackButton={()=>this.backButton()} renderRightButton={()=>this.shareButton()}/>
             <Scene key="hello" component={Hello} title="Hello Internet" initial={false} renderBackButton={()=>this.backButton()} renderRightButton={()=>this.shareButton()}/>
             <Scene key="locationList" component={LocationList} title="Daftar Lokasi" initial={false} renderBackButton={()=>this.menuButton()} renderLeftButton={()=>this.menuButton()}/>
