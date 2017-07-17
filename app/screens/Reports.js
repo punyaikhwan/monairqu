@@ -20,6 +20,9 @@ import DateTimePicker from 'react-native-modal-datetime-picker';
 import update from 'immutability-helper';
 
 var {height, width} = Dimensions.get('window');
+
+//get URL
+var markersURL = "https://monairqu.firebaseio.com/markers.json";
 //Status Text
 var statusRedText= "Bahaya";
 var statusOrangeText= "Buruk";
@@ -43,6 +46,7 @@ var bluetrans ="rgba(137,191,255,0.6)";
 var date = new Date();
 var formatted_date = dateFormat(date, "yyyy-mm-dd");
 var hour = dateFormat(date, "H");
+
 class Reports extends Component {
   constructor(props) {
     super(props);
@@ -67,7 +71,6 @@ class Reports extends Component {
       },
       markers: []
     };
-    this.onRegionChange = this.onRegionChange.bind(this);
   }
 
   async componentWillMount() {
@@ -110,7 +113,7 @@ class Reports extends Component {
     NetInfo.isConnected.fetch().then(isConnected => {
       if (isConnected) {
         console.log("ONLINE");
-        fetch("https://monairqu.firebaseio.com/markers.json")
+        fetch(markersURL)
         .then((response) => response.json())
         .then((response) => {
           getMarkers = response
@@ -128,9 +131,6 @@ class Reports extends Component {
         setTimeout(() => {this.getAllAddress()}, 1000);
       }
     });
-  }
-  onRegionChange(region) {
-    this.setState({region});
   }
 
   render() {
@@ -371,14 +371,6 @@ class Reports extends Component {
     );
   }
 
-  _onPressButton() {
-
-  }
-
-  getAddress(lat, lng) {
-
-  }
-
   async setLocTextForShare() {
     try {
       await AsyncStorage.setItem('location', this.state.textLocation);
@@ -386,6 +378,7 @@ class Reports extends Component {
       console.log("Error saving location.");
     }
   }
+
  async _onSelectPlace(i, lat, lng, quality) {
     this.setState({selectedPlace: i});
     this.setState({sensorId: this.state.markers[i].sensorId});

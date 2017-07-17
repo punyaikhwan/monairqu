@@ -24,6 +24,10 @@ import {LineChart} from 'react-native-charts-wrapper';
 import update from 'immutability-helper';
 var {height, width} = Dimensions.get('window');
 
+//get URL
+var statusqualityURL = "https://monairqu.firebaseio.com/reports/-KpAwRxjjCMxLQ51ocDP.json";
+var statusCompareURL = "https://monairqu.firebaseio.com/reports/-KpDF5Sd9X3UIKdfa5bC.json";
+
 //Status Text
 var statusRedText= "Bahaya";
 var statusOrangeText= "Buruk";
@@ -136,7 +140,7 @@ class ReportChart extends Component {
     NetInfo.isConnected.fetch().then(isConnected => {
       if (isConnected) {
         console.log("ONLINE");
-        fetch("https://monairqu.firebaseio.com/reports/-KpAwRxjjCMxLQ51ocDP.json")
+        fetch(statusqualityURL)
         .then((response) => response.json())
         .then((response) => {
           getStatus = response
@@ -313,67 +317,75 @@ class ReportChart extends Component {
   }
 
   addToCompareData() {
-    var getStatus = [];
-    NetInfo.isConnected.fetch().then(isConnected => {
-      if (isConnected) {
-        console.log("ONLINE");
-        fetch("https://monairqu.firebaseio.com/reports/-KpDF5Sd9X3UIKdfa5bC.json")
-        .then((response) => response.json())
-        .then((response) => {
-          getStatus = response
-        })
-        .catch((error) => {
+    if (this.state.isLoadingCompare === true) {
+      var getStatus = [];
+      NetInfo.isConnected.fetch().then(isConnected => {
+        if (isConnected) {
+          console.log("ONLINE");
+          fetch(statusCompareURL)
+          .then((response) => response.json())
+          .then((response) => {
+            getStatus = response
+          })
+          .catch((error) => {
 
-        })
-        .done(() => {
-          this.setState({statusCompare: getStatus});
-          this.setState({isLoadingCompare: false});
-          console.log(this.state.statusCompare);
-          this.setState(
-            update(this.state, {
-              dataDay: {
-                $set: {
-                  dataSets: [{
-                    values: this.state.statusquality.airquality.day,
-                    label: 'CO',
-                    config: {
-                      lineWidth: 2,
-                      drawCircles: true,
-                      highlightColor: processColor('#6caefb'),
-                      color: processColor('#6caefb'),
-                      drawFilled: true,
-                      fillColor: processColor('#6caefb'),
-                      fillAlpha: 60,
-                      drawValues: false,
-                      valueTextColor: processColor('white'),
-                    }
-                  }, {
-                    values: this.state.statusCompare.airquality.day,
-                    label: 'CO',
-                    config: {
-                      lineWidth: 2,
-                      drawCircles: true,
-                      highlightColor: processColor('#ffff00'),
-                      color: processColor('#ffff00'),
-                      drawFilled: false,
-                      fillColor: processColor('#6caefb'),
-                      fillAlpha: 60,
-                      drawValues: false,
-                      valueTextColor: processColor('white'),
-                    }
-                  }
-                ],
-                }
-              }
-            })
-          );
-        })
-      } else {
-        console.log("OFFLINE");
-        setTimeout(() => {this.addToCompareData(this.state.sensorId)}, 1000);
-      }
-    });
+          })
+          .done(() => {
+            this.setState({statusCompare: getStatus});
+            this.setState({isLoadingCompare: false});
+            console.log(this.state.statusCompare);
+            this.setValueCompare();
+          })
+        } else {
+          console.log("OFFLINE");
+          setTimeout(() => {this.addToCompareData(this.state.sensorId)}, 1000);
+        }
+      });
+    } else {
+      this.setValueCompare();
+    }
     this.setState({isComparing: true});
+  }
+
+  setValueCompare() {
+    this.setState(
+      update(this.state, {
+        dataDay: {
+          $set: {
+            dataSets: [{
+              values: this.state.statusquality.airquality.day,
+              label: 'CO',
+              config: {
+                lineWidth: 2,
+                drawCircles: true,
+                highlightColor: processColor('#6caefb'),
+                color: processColor('#6caefb'),
+                drawFilled: true,
+                fillColor: processColor('#6caefb'),
+                fillAlpha: 60,
+                drawValues: false,
+                valueTextColor: processColor('white'),
+              }
+            }, {
+              values: this.state.statusCompare.airquality.day,
+              label: 'CO',
+              config: {
+                lineWidth: 2,
+                drawCircles: true,
+                highlightColor: processColor('#ffff00'),
+                color: processColor('#ffff00'),
+                drawFilled: false,
+                fillColor: processColor('#6caefb'),
+                fillAlpha: 60,
+                drawValues: false,
+                valueTextColor: processColor('white'),
+              }
+            }
+          ],
+          }
+        }
+      })
+    );
   }
 
   closeCompare() {
@@ -403,6 +415,7 @@ class ReportChart extends Component {
     );
     this.setState({isComparing: false});
     this.setState({isShowToday: true});
+    this.setState({isLoadingCompare: false});
   }
 
   toggleShowToday() {

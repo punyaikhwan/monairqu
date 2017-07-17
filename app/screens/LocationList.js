@@ -15,6 +15,9 @@ import Icon from 'react-native-vector-icons/Entypo';
 
 var {height,width} = Dimensions.get('window');
 
+//get URL
+var statusListURL = "https://monairqu.firebaseio.com/markers.json";
+var locationListURL = "https://monairqu.firebaseio.com/locationlist/-KpDK6iurgbQx2o4LfkZ.json";
 class LocationList extends Component {
   constructor(props, context) {
     super(props, context)
@@ -49,7 +52,7 @@ class LocationList extends Component {
     NetInfo.isConnected.fetch().then(isConnected => {
       if (isConnected) {
         console.log("ONLINE");
-        fetch("https://monairqu.firebaseio.com/locationlist/-KpDK6iurgbQx2o4LfkZ.json")
+        fetch(locationListURL)
         .then((response) => response.json())
         .then((response) => {
           locations = response
@@ -73,7 +76,7 @@ class LocationList extends Component {
     NetInfo.isConnected.fetch().then(isConnected => {
       if (isConnected) {
         console.log("ONLINE");
-        fetch("https://monairqu.firebaseio.com/markers.json")
+        fetch(statusListURL)
         .then((response) => response.json())
         .then((response) => {
           getMarkers = response
@@ -234,21 +237,6 @@ class LocationList extends Component {
     });
     return responseContainer;
   }
-  getViewAddress(latlng, i) {
-      fetch("http://maps.googleapis.com/maps/api/geocode/json?latlng="+latlng.latitude+","+latlng.longitude+"&sensor=true")
-      .then((response) => response.json())
-      .then((response) => {
-        // console.log(response.results[0].address_components[3].long_name.indexOf(this.state.city))
-        // if (response.results[0].address_components[3].long_name.indexOf(this.state.city) !== -1) {
-        this.setState({renderContent: response.results[0].formatted_address});
-        // }
-      })
-      .catch((error) => {
-        console.error(error);
-      })
-      console.log("Content: ", this.state.renderContent);
-  }
-
 }
 
 
