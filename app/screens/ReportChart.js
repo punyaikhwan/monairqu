@@ -54,6 +54,7 @@ var tomorrow = new Date();
 var yesterday = new Date();
 class ReportChart extends Component {
   constructor(props) {
+    console.log(date.getDay());
     super(props);
     yesterday.setDate(yesterday.getDate()-1);
     tomorrow.setDate(tomorrow.getDate()+1);
@@ -68,8 +69,8 @@ class ReportChart extends Component {
       month: dateFormat(date, "mmm"),
       year: dateFormat(date, "yyyy"),
       hour: dateFormat(date, "H"),
-      daySelected: null,
-      weekSelected: null,
+      daySelected: date.getDay(),
+      weekSelected: Math.floor(date.getDate()/7),
       dateUp: dateUp,
       dateDown: dateDown,
       selectedIndex: 0,
@@ -284,7 +285,7 @@ class ReportChart extends Component {
         },
         xAxisMonth: {
           $set: {
-            valueFormatter: ['Week1','Week2','Week3','Week4'],
+            valueFormatter: ['Week1','Week2','Week3','Week4', 'Week 5'],
             position: 'BOTTOM',
             textColor: processColor('white'),
             label: "Hari"
@@ -370,8 +371,83 @@ class ReportChart extends Component {
                 drawValues: false,
                 valueTextColor: processColor('white'),
               }
-            }
-          ],
+            }],
+          }
+        }
+      })
+    );
+
+    this.setState(
+      update(this.state, {
+        dataWeek: {
+          $set: {
+            dataSets: [{
+              values: (this.state.statusquality.length !== 0 ? this.state.statusquality.airquality.week : []),
+              label: 'CO',
+              config: {
+                lineWidth: 2,
+                drawCircles: true,
+                highlightColor: processColor('#6caefb'),
+                color: processColor('#6caefb'),
+                drawFilled: true,
+                fillColor: processColor('#6caefb'),
+                fillAlpha: 60,
+                drawValues: false,
+                valueTextColor: processColor('white'),
+              }
+            }, {
+              values: this.state.statusCompare.airquality.week,
+              label: 'CO',
+              config: {
+                lineWidth: 2,
+                drawCircles: true,
+                highlightColor: processColor('#ffff00'),
+                color: processColor('#ffff00'),
+                drawFilled: false,
+                fillColor: processColor('#6caefb'),
+                fillAlpha: 60,
+                drawValues: false,
+                valueTextColor: processColor('white'),
+              }
+            }],
+          }
+        }
+      })
+    );
+
+    this.setState(
+      update(this.state, {
+        dataMonth: {
+          $set: {
+            dataSets: [{
+              values: (this.state.statusquality.length !== 0 ? this.state.statusquality.airquality.month : []),
+              label: 'CO',
+              config: {
+                lineWidth: 2,
+                drawCircles: true,
+                highlightColor: processColor('#6caefb'),
+                color: processColor('#6caefb'),
+                drawFilled: true,
+                fillColor: processColor('#6caefb'),
+                fillAlpha: 60,
+                drawValues: false,
+                valueTextColor: processColor('white'),
+              }
+            }, {
+              values: this.state.statusCompare.airquality.month,
+              label: 'CO',
+              config: {
+                lineWidth: 2,
+                drawCircles: true,
+                highlightColor: processColor('#ffff00'),
+                color: processColor('#ffff00'),
+                drawFilled: false,
+                fillColor: processColor('#6caefb'),
+                fillAlpha: 60,
+                drawValues: false,
+                valueTextColor: processColor('white'),
+              }
+            }],
           }
         }
       })
@@ -385,6 +461,55 @@ class ReportChart extends Component {
           $set: {
             dataSets: [{
               values: this.state.statusquality.airquality.day,
+              label: 'CO',
+              config: {
+                lineWidth: 2,
+                drawCircles: true,
+                highlightColor: processColor('#6caefb'),
+                color: processColor('#6caefb'),
+                drawFilled: true,
+                fillColor: processColor('#6caefb'),
+                fillAlpha: 60,
+                drawValues: false,
+                valueTextColor: processColor('white'),
+              }
+            }
+          ],
+          }
+        }
+      })
+    );
+    this.setState(
+      update(this.state, {
+        dataWeek: {
+          $set: {
+            dataSets: [{
+              values: this.state.statusquality.airquality.week,
+              label: 'CO',
+              config: {
+                lineWidth: 2,
+                drawCircles: true,
+                highlightColor: processColor('#6caefb'),
+                color: processColor('#6caefb'),
+                drawFilled: true,
+                fillColor: processColor('#6caefb'),
+                fillAlpha: 60,
+                drawValues: false,
+                valueTextColor: processColor('white'),
+              }
+            }
+          ],
+          }
+        }
+      })
+    );
+
+    this.setState(
+      update(this.state, {
+        dataMonth: {
+          $set: {
+            dataSets: [{
+              values: this.state.statusquality.airquality.month,
               label: 'CO',
               config: {
                 lineWidth: 2,
@@ -592,6 +717,22 @@ class ReportChart extends Component {
     }
   }
 
+  getLastDayOfMonth(monthIndex) {
+    switch(monthIndex) {
+      case 0: return 31; break;
+      case 1: return 28; break;
+      case 2: return 31; break;
+      case 3: return 30; break;
+      case 4: return 31; break;
+      case 5: return 30; break;
+      case 6: return 31; break;
+      case 7: return 31; break;
+      case 8: return 30; break;
+      case 9: return 31; break;
+      case 10: return 30; break;
+      case 11: return 31; break;
+    }
+  }
   render() {
     return (
       <View style={styles.container}>
@@ -688,7 +829,7 @@ class ReportChart extends Component {
               <Icon style={styles.iconUpDown} name="triangle-up" size={20} color="#50e3c2"/>
               <View style={{flex:2, flexDirection:'row'}}>
                 <Text style={styles.textNumberTemp}>
-                  {this.state.isLoading === false ? this.state.statusquality.temperature.day[this.state.hour] : "-"}
+                  {this.state.isLoading === false ? this.state.temperature : "-"}
                 </Text>
                 <Text style={{flex:2,fontSize:11, lineHeight:7, color: 'white'}}>
                   o
@@ -780,7 +921,7 @@ class ReportChart extends Component {
                     <View style={styles.comparingSection}>
                       <Icon name = "controller-stop" size= {20} color = {blue} style={styles.iconComparing}/>
                       <Text style={styles.textDateCompare}>
-                        Today
+                        {"Today "+ this.state.hour+":00"}
                       </Text>
                       <Text style={styles.textCOPlace}>
                         {this.state.statusquality.co.day[this.state.hour]}
@@ -810,7 +951,7 @@ class ReportChart extends Component {
                     <View style={styles.comparingSection}>
                       <Icon name = "controller-stop" size= {20} color = {yellow} style={styles.iconComparing}/>
                       <Text style={styles.textDateCompare}>
-                        {this.state.comparedDate}
+                        {dateFormat(this.state.comparedDate, "dd mmm yyyy")+" "+this.state.hour+":00"}
                       </Text>
                       <Text style={styles.textCOPlace}>
                           {this.state.isLoadingCompare === false ? this.state.statusCompare.co.day[this.state.hour] : "-"}
@@ -866,6 +1007,63 @@ class ReportChart extends Component {
                     onSelect={this.handleSelectWeek.bind(this)}
                   />
                 </View>
+                {this.state.isComparing === true &&
+                  <View style={styles.compareContainer}>
+                    <View style={styles.comparingSection}>
+                      <Icon name = "controller-stop" size= {20} color = {blue} style={styles.iconComparing}/>
+                      <Text style={styles.textDateCompare}>
+                        {String(date.getDate()-date.getDay()+this.state.daySelected)+" "+dateFormat(date, "mmm yyyy")}
+                      </Text>
+                      <Text style={styles.textCOPlace}>
+                        {this.state.isLoading === false ? this.state.co : "-"}
+                      </Text>
+                      <View style={{flex:1, flexDirection:'row'}}>
+                        <Text style={styles.textTempPlace}>
+                          {this.state.isLoading === false ? this.state.temperature:"-"}
+                        </Text>
+                        <Text style={{flex:1,fontSize:11, lineHeight:7, color: 'white'}}>
+                          o
+                        </Text>
+                      </View>
+                      <Text style={styles.textAirPlace}>
+                        {this.state.isLoading === false ? this.state.quality+"%" : "-"}
+                      </Text>
+                      {this.state.isShowToday === true &&
+                        <TouchableOpacity style={styles.iconComparing} onPress={this.toggleShowToday.bind(this)}>
+                        <Icon name= "eye" size= {20} color = "#cfff00"/>
+                        </TouchableOpacity>
+                      }
+                      {this.state.isShowToday === false &&
+                        <TouchableOpacity style={styles.iconComparing} onPress={this.toggleShowToday.bind(this)}>
+                        <Icon name= "eye-with-line" size= {20} color = "#8A8383"/>
+                        </TouchableOpacity>
+                      }
+                    </View>
+                    <View style={styles.comparingSection}>
+                      <Icon name = "controller-stop" size= {20} color = {yellow} style={styles.iconComparing}/>
+                      <Text style={styles.textDateCompare}>
+                        {String(this.state.comparedDate.getDate()-this.state.comparedDate.getDay()+this.state.daySelected)+" "+dateFormat(this.state.comparedDate, "mmm yyyy")}
+                      </Text>
+                      <Text style={styles.textCOPlace}>
+                          {this.state.isLoadingCompare === false ? this.state.statusCompare.co.week[this.state.daySelected] : "-"}
+                      </Text>
+                      <View style={{flex:1, flexDirection:'row'}}>
+                        <Text style={styles.textTempPlace}>
+                          {this.state.isLoadingCompare === false ? this.state.statusCompare.temperature.week[this.state.daySelected] : "-"}
+                        </Text>
+                        <Text style={{flex:1,fontSize:11, lineHeight:7, color: 'white'}}>
+                          o
+                        </Text>
+                      </View>
+                      <Text style={styles.textAirPlace}>
+                        {this.state.isLoadingCompare === false ? this.state.statusCompare.airquality.week[this.state.daySelected].y+"%" : "-"}
+                      </Text>
+                      <TouchableOpacity style={styles.iconComparing} onPress={this.closeCompare.bind(this)}>
+                      <Icon name= "cross" size= {20} color = "#cfff00"/>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                }
               </View>
             }
             {this.state.indexTab === 2 &&
@@ -899,6 +1097,63 @@ class ReportChart extends Component {
                     onSelect={this.handleSelectMonth.bind(this)}
                   />
                 </View>
+                {this.state.isComparing === true &&
+                  <View style={styles.compareContainer}>
+                    <View style={styles.comparingSection}>
+                      <Icon name = "controller-stop" size= {20} color = {blue} style={styles.iconComparing}/>
+                      <Text style={styles.textDateCompare}>
+                        {(1+this.state.weekSelected*7)+"-"+(8+this.state.weekSelected*7 < 28 ? 8+this.state.weekSelected*7 : this.getLastDayOfMonth(date.getMonth()))+" "+dateFormat(date, "mmm yyyy")}
+                      </Text>
+                      <Text style={styles.textCOPlace}>
+                        {this.state.statusquality.co.month[this.state.weekSelected]}
+                      </Text>
+                      <View style={{flex:1, flexDirection:'row'}}>
+                        <Text style={styles.textTempPlace}>
+                          {this.state.isLoading === false ? this.state.statusquality.temperature.month[this.state.weekSelected]:"-"}
+                        </Text>
+                        <Text style={{flex:1,fontSize:11, lineHeight:7, color: 'white'}}>
+                          o
+                        </Text>
+                      </View>
+                      <Text style={styles.textAirPlace}>
+                        {this.state.isLoading === false ? this.state.statusquality.airquality.month[this.state.weekSelected].y+"%" : "-"}
+                      </Text>
+                      {this.state.isShowToday === true &&
+                        <TouchableOpacity style={styles.iconComparing} onPress={this.toggleShowToday.bind(this)}>
+                        <Icon name= "eye" size= {20} color = "#cfff00"/>
+                        </TouchableOpacity>
+                      }
+                      {this.state.isShowToday === false &&
+                        <TouchableOpacity style={styles.iconComparing} onPress={this.toggleShowToday.bind(this)}>
+                        <Icon name= "eye-with-line" size= {20} color = "#8A8383"/>
+                        </TouchableOpacity>
+                      }
+                    </View>
+                    <View style={styles.comparingSection}>
+                      <Icon name = "controller-stop" size= {20} color = {yellow} style={styles.iconComparing}/>
+                      <Text style={styles.textDateCompare}>
+                        {(1+this.state.weekSelected*7)+"-"+(8+this.state.weekSelected*7 < 28 ? 8+this.state.weekSelected*7 : this.getLastDayOfMonth(this.state.comparedDate.getMonth()))+" "+dateFormat(this.state.comparedDate, "mmm yyyy")}
+                      </Text>
+                      <Text style={styles.textCOPlace}>
+                          {this.state.isLoadingCompare === false ? this.state.statusCompare.co.month[this.state.weekSelected] : "-"}
+                      </Text>
+                      <View style={{flex:1, flexDirection:'row'}}>
+                        <Text style={styles.textTempPlace}>
+                          {this.state.isLoadingCompare === false ? this.state.statusCompare.temperature.month[this.state.weekSelected] : "-"}
+                        </Text>
+                        <Text style={{flex:1,fontSize:11, lineHeight:7, color: 'white'}}>
+                          o
+                        </Text>
+                      </View>
+                      <Text style={styles.textAirPlace}>
+                        {this.state.isLoadingCompare === false ? this.state.statusCompare.airquality.month[this.state.weekSelected].y+"%" : "-"}
+                      </Text>
+                      <TouchableOpacity style={styles.iconComparing} onPress={this.closeCompare.bind(this)}>
+                      <Icon name= "cross" size= {20} color = "#cfff00"/>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                }
               </View>
             }
 
@@ -978,7 +1233,7 @@ class ReportChart extends Component {
   _hideDateTimePicker = () => this.setState({ isDateTimePickerVisible: false });
 
   _handleDatePicked = (date) => {
-    this.setState({comparedDate: dateFormat(date, "ddd, dd mmm yyyy")});
+    this.setState({comparedDate: date});
     this.setState({isLoadingCompare: true});
     console.log(this.state.comparedDate);
     this.addToCompareData();
