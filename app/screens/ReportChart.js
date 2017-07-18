@@ -607,12 +607,6 @@ class ReportChart extends Component {
     this.setState({co: this.state.statusquality.co.week[this.state.daySelected]});
     this.setState({temperature: this.state.statusquality.temperature.week[this.state.daySelected]});
     try {
-      await AsyncStorage.setItem('quality', String(this.state.quality));
-    } catch (error) {
-      console.log("Error saving quality.");
-    }
-
-    try {
       await AsyncStorage.setItem('flag','1');
     } catch (error) {
       console.log("Error saving flag.");
@@ -622,6 +616,11 @@ class ReportChart extends Component {
       await AsyncStorage.setItem('daySelected', String(this.state.daySelected));
     } catch (error) {
       console.log("Error saving day")
+    }
+    try {
+      await AsyncStorage.setItem('quality', String(this.state.quality));
+    } catch (error) {
+      console.log("Error saving quality.");
     }
     this.changeStatus(this.state.quality);
   }
@@ -633,11 +632,6 @@ class ReportChart extends Component {
     this.setState({quality: (entry.x !== undefined ? this.state.statusquality.airquality.month[entry.x].y: this.state.quality)});
     this.setState({co: this.state.statusquality.co.month[this.state.weekSelected]});
     this.setState({temperature: this.state.statusquality.temperature.month[this.state.weekSelected]});
-    try {
-      await AsyncStorage.setItem('quality', String(this.state.quality));
-    } catch (error) {
-      console.log("Error saving quality.");
-    }
 
     try {
       await AsyncStorage.setItem('flag','2');
@@ -650,6 +644,13 @@ class ReportChart extends Component {
     } catch (error) {
       console.log("Error saving week")
     }
+
+    try {
+      await AsyncStorage.setItem('quality', String(this.state.quality));
+    } catch (error) {
+      console.log("Error saving quality.");
+    }
+
     this.changeStatus(this.state.quality);
   }
 
