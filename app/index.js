@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {Actions, Router, Scene } from 'react-native-router-flux';
 import {StyleSheet, TouchableOpacity, Image, StatusBar, Share, AsyncStorage} from 'react-native';
+import SplashScreen from 'react-native-smart-splash-screen';
 import Reports from './screens/Reports';
 import Hello from './screens/Hello';
 import styles from './styles';
@@ -49,6 +50,15 @@ class App extends Component {
       open: false
     };
   }
+
+  componentDidMount () {
+   //SplashScreen.close(SplashScreen.animationType.scale, 850, 500)
+   SplashScreen.close({
+      animationType: SplashScreen.animationType.scale,
+      duration: 2000,
+      delay: 100,
+   })
+ }
   render() {
     var controlPanel = <MyControlPanel closeDrawer={() => {
       this.closeDrawer;

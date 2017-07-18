@@ -3,6 +3,7 @@ package com.monairqu;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.reactnativecomponent.splashscreen.RCTSplashScreenPackage;
 import com.github.wuxudong.rncharts.MPAndroidChartPackage;
 import fr.aybadb.rnak.RNAKPackage;
 import com.xebia.reactnative.TabLayoutPackage;
@@ -28,6 +29,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RCTSplashScreenPackage(),
             new MPAndroidChartPackage(),
             new RNAKPackage(),
             new TabLayoutPackage(),

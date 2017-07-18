@@ -6,6 +6,7 @@ module.exports = StyleSheet.create({
     flex: 1,
     backgroundColor:'#0c1823',
   },
+  
   controlPanelText: {
     color:'white',
   },

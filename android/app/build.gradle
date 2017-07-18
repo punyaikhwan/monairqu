@@ -143,6 +143,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-smart-splash-screen')
     compile project(':react-native-charts-wrapper')
     compile project(':react-native-android-kit')
     compile project(':react-native-android-tablayout')
