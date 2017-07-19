@@ -3,11 +3,8 @@ import {Actions, Router, Scene } from 'react-native-router-flux';
 import {StyleSheet, TouchableOpacity, Image, StatusBar, Share, AsyncStorage} from 'react-native';
 import SplashScreen from 'react-native-smart-splash-screen';
 import Reports from './screens/Reports';
-import Hello from './screens/Hello';
 import styles from './styles';
 import ReportChart from './screens/ReportChart';
-import SimpleTab from './screens/SimpleTab';
-import LineChartScreen from './screens/LineChartScreen';
 import LocationList from './screens/LocationList';
 import Icon from 'react-native-vector-icons/Entypo';
 import Drawer from 'react-native-drawer';
@@ -29,7 +26,7 @@ class App extends Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      drawerType: 'static',
+      drawerType: 'overlay',
       openDrawerOffset:100,
       closedDrawerOffset:0,
       panOpenMask: .1,
@@ -43,7 +40,7 @@ class App extends Component {
       tweenHandlerPreset: null,
       acceptDoubleTap: false,
       acceptTap: false,
-      acceptPan: false,
+      acceptPan: true,
       tapToClose: true,
       negotiatePan: false,
       side: "left",
@@ -56,7 +53,7 @@ class App extends Component {
    SplashScreen.close({
       animationType: SplashScreen.animationType.scale,
       duration: 2000,
-      delay: 100,
+      delay: 1000,
    })
  }
   render() {
@@ -95,9 +92,7 @@ class App extends Component {
           <Scene key="root" navigationBarStyle={styles.navbarStyle} titleStyle={styles.title} >
             <Scene key="reportsMap" component={Reports} title="Reports" initial={true} renderBackButton={()=>this.menuButton()} renderLeftButton={()=>this.menuButton()} renderRightButton={()=>this.shareButton()}/>
             <Scene key="chart" component={ReportChart} title="Reports" initial={false} renderBackButton={()=>this.backButton()} renderRightButton={()=>this.shareButton()}/>
-            <Scene key="hello" component={Hello} title="Hello Internet" initial={false} renderBackButton={()=>this.backButton()} renderRightButton={()=>this.shareButton()}/>
             <Scene key="locationList" component={LocationList} title="Daftar Lokasi" initial={false} renderBackButton={()=>this.menuButton()} renderLeftButton={()=>this.menuButton()}/>
-            <Scene key="tab" component={SimpleTab} title="Simple Tab" initial={false} renderBackButton={()=>this.menuButton()} renderLeftButton={()=>this.menuButton()} renderRightButton={this.groupButton}/>
           </Scene>
         </Router>
         <StatusBar

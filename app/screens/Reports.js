@@ -40,7 +40,7 @@ var orangedark = "rgb(230, 152, 22)";
 var bluedark = "rgb(73, 144, 226)";
 var redtrans = "rgba(208,2,27,0.6)";
 var yellowtrans = "rgba(246,215,35,0.6)";
-var orangetrans = "rgba(246, 166, 35,0.6)";
+var orangetrans = "rgba(246, 166, 35, 0.6)";
 var bluetrans ="rgba(137,191,255,0.6)";
 
 var date = new Date();
@@ -63,9 +63,15 @@ class Reports extends Component {
       date : formatted_date,
       hour: hour,
       isLoading: true,
+      selectedLatitude: null,
+      selectedLongitude: null,
+      myLocation: {
+        latitude: -7.7584316,
+        longitude: 110.3684575,
+      },
       region: {
-        latitude: -7.7712196,
-        longitude: 110.3473598,
+        latitude: -7.7584316,
+        longitude: 110.3684575,
         latitudeDelta: 0.0122,
         longitudeDelta: 0.0121,
       },
@@ -75,6 +81,7 @@ class Reports extends Component {
 
   async componentWillMount() {
     this.getAllAddress();
+    this.goToMyLocation();
     try {
       await AsyncStorage.setItem('date', this.state.date);
     } catch (error) {
@@ -95,19 +102,31 @@ class Reports extends Component {
   }
 
   componentDidMount() {
+
+  }
+
+  goToMyLocation() {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         this.setState({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          error: null,
+          region: {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            longitudeDelta: this.state.region.longitudeDelta,
+            latitudeDelta: this.state.region.latitudeDelta
+          }
+        });
+        this.setState({
+          myLocation: {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          }
         });
       },
       (error) => this.setState({ error: error.message }),
       { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
     );
   }
-
   getAllAddress() {
     var getMarkers = [];
     NetInfo.isConnected.fetch().then(isConnected => {
@@ -123,6 +142,7 @@ class Reports extends Component {
         })
         .done(() => {
           this.setState({markers: getMarkers});
+          console.log(getMarkers);
           this.setState({isLoading: false});
           this._onSelectPlace(0, this.state.markers[0].latlng.latitude, this.state.markers[0].latlng.longitude, this.state.markers[0].quality);
         })
@@ -146,7 +166,7 @@ class Reports extends Component {
       }
 
         <View style={styles.legenda}>
-          <Image source={require('../images/borobudur_sunrise_tour_16_copy.jpg')}
+          <Image source={{uri: "https://maps.googleapis.com/maps/api/streetview?size=88x88&location="+this.state.selectedLatitude+","+this.state.selectedLongitude+"&fov=90&heading=235&pitch=10&key=AIzaSyCexfdgyoRLac1cOQykQ_fBgZNbVCGfAII"}}
             style={styles.imageLoc}/>
           <View style={styles.legendakanan}>
             <View style={styles.legendaatas}>
@@ -158,7 +178,7 @@ class Reports extends Component {
               </ScrollView>
             </View>
               <TouchableHighlight style={styles.detailBtn} underlayColor={"rgba(0,0,0,0)"} onPress={() =>
-                Actions.chart({sensorId: this.state.sensorId, textLocation: this.state.textLocation, quality: this.state.quality})}>
+                Actions.chart({sensorId: this.state.sensorId, textLocation: this.state.textLocation, quality: this.state.quality, latitude: this.state.selectedLatitude, longitude:this.state.selectedLongitude})}>
                 <View style={styles.detailBtnContainer}>
                 <Text style={styles.detailBtnText}>
                   Details
@@ -233,7 +253,14 @@ class Reports extends Component {
           region={this.state.region}
         >
 
-
+        <MapView.Marker
+          coordinate={this.state.myLocation}
+        >
+        <View style={styles.myLocMarkerOuter}>
+          <View style={styles.myLocMarker}>
+          </View>
+        </View>
+        </MapView.Marker>
         {this.state.markers.map((marker,i) => (
           <MapView.Marker
             key = {i}
@@ -251,7 +278,7 @@ class Reports extends Component {
               </View>
             </TouchableHighlight>
           }
-          {this.state.selectedPlace == i && marker.quality > 35 && marker.quality <=60 &&
+          {this.state.selectedPlace == i && marker.quality > 35 && marker.quality <= 60 &&
             <View style={styles.selectedPercentageOrangeContainer}>
               <Text style={styles.percentageText}>
                 {marker.quality+"%"}
@@ -280,7 +307,7 @@ class Reports extends Component {
             </View>
           }
           {this.state.selectedPlace != i && marker.quality > 35 && marker.quality <= 60 &&
-            <View style={styles.percentageOrangeontainer}>
+            <View style={styles.percentageOrangeContainer}>
               <Text style={styles.percentageText}>
                 {marker.quality+"%"}
               </Text>
@@ -304,7 +331,7 @@ class Reports extends Component {
         ))}
         </MapView>
 
-        <TouchableHighlight style={styles.mylocBtn} underlayColor={"rgba(0,0,0,0)"} onPress={this._onPressButton}>
+        <TouchableHighlight style={styles.mylocBtn} underlayColor={"rgba(0,0,0,0)"} onPress={()=>this.goToMyLocation()}>
           <View style={styles.myLocBtnContainer}>
           <Image source={require('../images/myloc.png')}
             style={styles.imageMyLoc}/>
@@ -396,7 +423,9 @@ class Reports extends Component {
         latitudeDelta: this.state.region.latitudeDelta
       }
     });
-    console.log(this.state.region.latitude, this.state.region.longitude);
+
+    this.setState({selectedLatitude: lat});
+    this.setState({selectedLongitude: lng});
 
     //getAddress
     fetch("http://maps.googleapis.com/maps/api/geocode/json?latlng="+lat+","+lng+"&sensor=true")
@@ -585,6 +614,22 @@ const styles = StyleSheet.create({
     borderColor: 'white',
     borderWidth:2,
     backgroundColor:'white'
+  },
+  myLocMarker: {
+    borderRadius: 100,
+    width: 15,
+    height:15,
+    backgroundColor: "rgb(34,140,246)",
+    borderWidth: 5,
+    borderColor: 'transparent'
+  },
+  myLocMarkerOuter : {
+    borderRadius: 100,
+    width: 25,
+    height:25,
+    borderColor: "rgb(34,140,246)",
+    borderWidth: 5,
+    backgroundColor: 'transparent'
   },
   imageMyLoc: {
     width:20,

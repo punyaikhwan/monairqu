@@ -9,16 +9,14 @@ import {
 import {Actions} from 'react-native-router-flux';
 
 import styles from './styles';
-import Button from './Button';
 
 export default class ControlPanel extends Component {
   render() {
     return (
       <View style={styles.controlPanel}>
         <View style={styles.titleControlPanel}>
-          <Text style={styles.controlPanelWelcome}>
-            AEROSKY
-          </Text>
+          <Image source={require('./images/logo.png')} style={styles.imageLogo}
+          />
         </View>
 
         <TouchableHighlight onPress={() => {Actions.reportsMap()}}>

@@ -6,7 +6,7 @@ module.exports = StyleSheet.create({
     flex: 1,
     backgroundColor:'#0c1823',
   },
-  
+
   controlPanelText: {
     color:'white',
   },
@@ -30,10 +30,14 @@ module.exports = StyleSheet.create({
   titleControlPanel: {
     borderBottomColor: '#979797',
     borderBottomWidth: 1,
-    padding: 18,
-    margin: 20
+    height: 100,
+    borderColor: 'white'
   },
 
+  imageLogo: {
+    width: deviceScreen.width-100,
+    height: 100
+  },
   controlPanelMenuContainer: {
     height: 50,
     justifyContent: 'center',

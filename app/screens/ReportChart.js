@@ -737,11 +737,10 @@ class ReportChart extends Component {
   render() {
     return (
       <View style={styles.container}>
-
-        <Image source={require('../images/borobudur_sunrise_tour_16_copy.jpg')}
+        <Image source={require('../images/bgChart.png')}
           style={styles.imageAnimationLegenda}/>
         <View style={styles.legenda}>
-          <Image source={require('../images/borobudur_sunrise_tour_16_copy.jpg')}
+          <Image source={{uri: "https://maps.googleapis.com/maps/api/streetview?size=51x51&location="+this.props.latitude+","+this.props.longitude+"&fov=90&heading=235&pitch=10&key=AIzaSyCexfdgyoRLac1cOQykQ_fBgZNbVCGfAII"}}
             style={styles.imageLoc}/>
           <Text style={styles.textLoc}>
             {this.props.textLocation}
@@ -758,6 +757,8 @@ class ReportChart extends Component {
             </Text>
           </View>
         </View>
+
+        <View style={styles.spaceGray}/>
 
         <View style={styles.statusArea}>
         {this.state.status === 3 &&
@@ -816,7 +817,7 @@ class ReportChart extends Component {
         <View style={styles.detailStatus}>
           <View style={styles.detailPerItem}>
             <View style={styles.topSegmentDetail}>
-              <Icon style={styles.iconUpDown} name="triangle-up" size={20} color="#50e3c2"/>
+              <Icon style={styles.iconUpDown} name="cloud" size={20} color="#50e3c2"/>
               <Text style={styles.textNumber}>
                 {this.state.isLoading === false ? this.state.co: "-"}
               </Text>
@@ -827,7 +828,7 @@ class ReportChart extends Component {
           </View>
           <View style={styles.detailPerItem}>
             <View style={styles.topSegmentDetail}>
-              <Icon style={styles.iconUpDown} name="triangle-up" size={20} color="#50e3c2"/>
+              <Icon style={styles.iconUpDown} name="thermometer" size={20} color="#50e3c2"/>
               <View style={{flex:2, flexDirection:'row'}}>
                 <Text style={styles.textNumberTemp}>
                   {this.state.isLoading === false ? this.state.temperature : "-"}
@@ -843,7 +844,7 @@ class ReportChart extends Component {
           </View>
           <View style={styles.detailPerItem}>
             <View style={styles.topSegmentDetail}>
-              <Icon style={styles.iconUpDown} name="triangle-up" size={20} color="#50e3c2"/>
+              <Icon style={styles.iconUpDown} name="leaf" size={20} color="#50e3c2"/>
               <Text style={styles.textNumber}>
                 {this.state.isLoading === false ? this.state.quality+"%" : "-"}
               </Text>
@@ -1259,7 +1260,7 @@ const styles = StyleSheet.create({
     width:width,
     height: 100,
     marginTop:72,
-    backgroundColor: 'rgba(71, 186, 236, 0.8)',
+    backgroundColor: 'transparent',
     flexDirection: "row",
     position: 'absolute'
   },
@@ -1307,6 +1308,13 @@ const styles = StyleSheet.create({
     position: 'absolute'
   },
 
+  spaceGray: {
+    width: width,
+    height: 30,
+    marginTop: 170,
+    position: 'absolute',
+    backgroundColor: 'rgba(134,134,134,0.6)'
+  },
   imageStatus: {
     width:79,
     height:35,
@@ -1479,7 +1487,9 @@ const styles = StyleSheet.create({
 
   topSegmentDetail: {
     flex:2,
-    flexDirection: 'row'
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center'
   },
 
   iconUpDown: {
