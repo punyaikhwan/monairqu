@@ -140,14 +140,20 @@ class ReportChart extends Component {
 
         })
         .done(() => {
-          this.setState({statusquality: getStatus});
-          this.setState({isLoading: false});
-          console.log(this.state.statusquality);
-          var entry = this.state.statusquality;
-          this.setState({quality: entry.airquality.day[this.state.hour].y});
-          this.setState({co: entry.co.day[this.state.hour]});
-          this.setState({temperature: entry.temperature.day[this.state.hour]});
-          this.setStatusValue();
+          try {
+            this.setState({statusquality: getStatus});
+            this.setState({isLoading: false});
+            console.log(this.state.statusquality);
+            var entry = this.state.statusquality;
+            this.setState({quality: entry.airquality.day[this.state.hour].y});
+            this.setState({co: entry.co.day[this.state.hour]});
+            this.setState({temperature: entry.temperature.day[this.state.hour]});
+            this.setStatusValue();
+          } catch (e) {
+            console.log(e);
+            this.setState({isLoading: true});
+            setTimeout(() => {this.getThisStatusQuality(sensorId)}, 1000);
+          }
         })
       } else {
         console.log("OFFLINE");
@@ -322,10 +328,16 @@ class ReportChart extends Component {
 
           })
           .done(() => {
-            this.setState({statusCompare: getStatus});
-            this.setState({isLoadingCompare: false});
-            console.log(this.state.statusCompare);
-            this.setValueCompare();
+            try {
+              this.setState({statusCompare: getStatus});
+              this.setState({isLoadingCompare: false});
+              console.log(this.state.statusCompare);
+              this.setValueCompare();
+            } catch (e) {
+              console.log(e);
+              this.setState({isLoadingCompare: true});
+              setTimeout(() => {this.addToCompareData(this.state.sensorId)}, 1000);
+            }
           })
         } else {
           console.log("OFFLINE");

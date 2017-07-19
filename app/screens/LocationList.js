@@ -85,9 +85,15 @@ class LocationList extends Component {
 
         })
         .done(() => {
-          this.setState({statusList: getMarkers});
-          this.setState({isLoadingStatusList: false});
-          this.setState({listShowedLoc: this.getAllAddress(this.state.statusList, this.state.city)});
+          try {
+            this.setState({statusList: getMarkers});
+            this.setState({isLoadingStatusList: false});
+            this.setState({listShowedLoc: this.getAllAddress(this.state.statusList, this.state.city)});
+          } catch (e) {
+            console.log(e);
+            this.setState({isLoadingStatusList: false});            
+            setTimeout(() => {this.getAllStatusList()}, 1000);
+          }
         })
       } else {
         console.log("OFFLINE");

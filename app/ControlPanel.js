@@ -15,7 +15,7 @@ export default class ControlPanel extends Component {
     return (
       <View style={styles.controlPanel}>
         <View style={styles.titleControlPanel}>
-          <Image source={require('./images/logo.png')} style={styles.imageLogo}
+          <Image source={require('./images/logo.png')} style={styles.imageLogo} resizeMode={'contain'}
           />
         </View>
 

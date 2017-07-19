@@ -31,13 +31,18 @@ module.exports = StyleSheet.create({
     borderBottomColor: '#979797',
     borderBottomWidth: 1,
     height: 100,
+    marginLeft: 20,
+    marginRight: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
     borderColor: 'white'
   },
 
   imageLogo: {
-    width: deviceScreen.width-100,
-    height: 100
+    width: deviceScreen.width-170,
+    height: 70
   },
+
   controlPanelMenuContainer: {
     height: 50,
     justifyContent: 'center',

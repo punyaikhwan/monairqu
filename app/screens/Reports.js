@@ -66,8 +66,8 @@ class Reports extends Component {
       selectedLatitude: null,
       selectedLongitude: null,
       myLocation: {
-        latitude: -7.7584316,
-        longitude: 110.3684575,
+        latitude: null,
+        longitude: null,
       },
       region: {
         latitude: -7.7584316,
@@ -81,7 +81,6 @@ class Reports extends Component {
 
   async componentWillMount() {
     this.getAllAddress();
-    this.goToMyLocation();
     try {
       await AsyncStorage.setItem('date', this.state.date);
     } catch (error) {
@@ -102,7 +101,7 @@ class Reports extends Component {
   }
 
   componentDidMount() {
-
+    this.goToMyLocation();
   }
 
   goToMyLocation() {
@@ -141,11 +140,17 @@ class Reports extends Component {
 
         })
         .done(() => {
-          this.setState({markers: getMarkers});
-          console.log(getMarkers);
-          this.setState({isLoading: false});
-          this._onSelectPlace(0, this.state.markers[0].latlng.latitude, this.state.markers[0].latlng.longitude, this.state.markers[0].quality);
-        })
+          try{
+              this.setState({markers: getMarkers});
+              console.log(getMarkers);
+              this.setState({isLoading: false});
+              this._onSelectPlace(0, this.state.markers[0].latlng.latitude, this.state.markers[0].latlng.longitude, this.state.markers[0].quality);
+            } catch (e) {
+              console.log(e);
+              this.setState({isLoading: true});
+              setTimeout(() => {this.getAllAddress()}, 1000);
+            }
+        });
       } else {
         console.log("OFFLINE");
         setTimeout(() => {this.getAllAddress()}, 1000);
@@ -253,14 +258,17 @@ class Reports extends Component {
           region={this.state.region}
         >
 
-        <MapView.Marker
-          coordinate={this.state.myLocation}
-        >
-        <View style={styles.myLocMarkerOuter}>
-          <View style={styles.myLocMarker}>
-          </View>
-        </View>
-        </MapView.Marker>
+        {this.state.myLocation.latitude !== null &&
+          <MapView.Marker
+            coordinate={this.state.myLocation}
+          >
+            <View style={styles.myLocMarkerOuter}>
+              <View style={styles.myLocMarker}>
+              </View>
+            </View>
+          </MapView.Marker>
+        }
+
         {this.state.markers.map((marker,i) => (
           <MapView.Marker
             key = {i}

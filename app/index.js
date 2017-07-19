@@ -134,18 +134,8 @@ class App extends Component {
     return(
       <TouchableOpacity onPress={() => this.openDrawer()}>
         <Image
-          source={require('./images/group_2.png')}
+          source={require('./images/menu.png')}
           style={{width:22, height:22, marginLeft: 13.5, marginTop: 10}}/>
-      </TouchableOpacity>
-    )
-  }
-
-  groupButton(){
-    return(
-      <TouchableOpacity onPress={() => Actions.refresh({key:'drawer', open:true})}>
-        <Image
-          source={require('./images/groups.png')}
-          style={{width:22, height:22, marginRight: 13.5, marginTop: 10}}/>
       </TouchableOpacity>
     )
   }
@@ -210,7 +200,7 @@ class App extends Component {
     return(
       <TouchableOpacity onPress={() => this._shareMessage()}>
         <Image
-          source={require('./images/groups_copy_3.png')}
+          source={require('./images/share.png')}
           style={{width:22, height:22, marginRight: 13.5, marginTop: 10}}/>
       </TouchableOpacity>
     )
