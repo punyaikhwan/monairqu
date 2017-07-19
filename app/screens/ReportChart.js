@@ -546,38 +546,90 @@ class ReportChart extends Component {
   }
 
   toggleShowToday() {
-    if (this.state.isShowToday) {
-      this.setState(
-        update(this.state, {
-          dataDay: {
-            $set: {
-              dataSets: [{
-                values: this.state.statusCompare.airquality.day,
-                label: 'CO',
-                config: {
-                  lineWidth: 2,
-                  drawCircles: true,
-                  highlightColor: processColor('#ffff00'),
-                  color: processColor('#ffff00'),
-                  drawFilled: true,
-                  fillColor: processColor('#6caefb'),
-                  fillAlpha: 60,
-                  drawValues: false,
-                  valueTextColor: processColor('white'),
-                }
-              }
-            ],
-            }
-          }
-        })
-      );
-    } else {
-      this.addToCompareData();
-    }
-
     console.log("Before:", this.state.isShowToday)
     this.setState({isShowToday: !this.state.isShowToday})
-    console.log("After:", this.state.isShowToday)
+
+    setTimeout(() => {
+      if (!this.state.isShowToday) {
+        console.log("After:", this.state.isShowToday)
+        this.setState(
+          update(this.state, {
+            dataDay: {
+              $set: {
+                dataSets: [{
+                  values: this.state.statusCompare.airquality.day,
+                  label: 'CO',
+                  config: {
+                    lineWidth: 2,
+                    drawCircles: true,
+                    highlightColor: processColor('#ffff00'),
+                    color: processColor('#ffff00'),
+                    drawFilled: true,
+                    fillColor: processColor('#6caefb'),
+                    fillAlpha: 60,
+                    drawValues: false,
+                    valueTextColor: processColor('white'),
+                  }
+                }
+              ],
+              }
+            }
+          })
+        );
+        this.setState(
+          update(this.state, {
+            dataWeek: {
+              $set: {
+                dataSets: [{
+                  values: this.state.statusCompare.airquality.week,
+                  label: 'CO',
+                  config: {
+                    lineWidth: 2,
+                    drawCircles: true,
+                    highlightColor: processColor('#ffff00'),
+                    color: processColor('#ffff00'),
+                    drawFilled: true,
+                    fillColor: processColor('#6caefb'),
+                    fillAlpha: 60,
+                    drawValues: false,
+                    valueTextColor: processColor('white'),
+                  }
+                }
+              ],
+              }
+            }
+          })
+        );
+
+        this.setState(
+          update(this.state, {
+            dataMonth: {
+              $set: {
+                dataSets: [{
+                  values: this.state.statusCompare.airquality.month,
+                  label: 'CO',
+                  config: {
+                    lineWidth: 2,
+                    drawCircles: true,
+                    highlightColor: processColor('#ffff00'),
+                    color: processColor('#ffff00'),
+                    drawFilled: true,
+                    fillColor: processColor('#6caefb'),
+                    fillAlpha: 60,
+                    drawValues: false,
+                    valueTextColor: processColor('white'),
+                  }
+                }
+              ],
+              }
+            }
+          })
+        );
+      } else {
+        console.log("After:", this.state.isShowToday)
+        this.addToCompareData();
+      }
+    }, 50);
   }
 
   async handleSelectDay(event) {

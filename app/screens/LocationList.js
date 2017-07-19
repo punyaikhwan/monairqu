@@ -91,7 +91,7 @@ class LocationList extends Component {
             this.setState({listShowedLoc: this.getAllAddress(this.state.statusList, this.state.city)});
           } catch (e) {
             console.log(e);
-            this.setState({isLoadingStatusList: false});            
+            this.setState({isLoadingStatusList: false});
             setTimeout(() => {this.getAllStatusList()}, 1000);
           }
         })
@@ -132,7 +132,7 @@ class LocationList extends Component {
             <Picker.Item key={i} style={{fontSize:14}} label={loc.province} value={loc.province, i} />
           ))}
           </Picker>
-          <Icon style={styles.dropdownIcon} name="chevron-small-down" size={30} color='white'/>
+          <Icon name="chevron-small-down" size={30} color='white'/>
         </View>
       }
       {this.state.isLoadingLoc === false && this.state.isLoadingStatusList === false &&
@@ -153,7 +153,7 @@ class LocationList extends Component {
             <Picker.Item key={i} style={{fontSize:14}} label={kab} value={kab} />
           ))}
           </Picker>
-          <Icon style={styles.dropdownIcon} name="chevron-small-down" size={30} color='white'/>
+          <Icon name="chevron-small-down" size={30} color='white'/>
         </View>
         }
         {this.state.loadPlace === true &&
@@ -174,7 +174,7 @@ class LocationList extends Component {
         }
         {this.state.listShowedLoc.map((items, i) => (
           <TouchableHighlight key={i} style={{width: width, height: 50}} onPress={() =>
-            Actions.chart({sensorId: items.sensorId, textLocation: items.placeNameLong, quality: items.quality})}>
+            Actions.chart({sensorId: items.sensorId, textLocation: items.placeNameLong, quality: items.quality, latitude: items.latlng.latitude, longitude: items.latlng.longitude})}>
           <View style={styles.placeItem}>
             <Text style={styles.textNamePlace}>
               {items.placeNameShort}
@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row'
   },
   placePicker: {
-    flex: 10,
+    flex: 1,
     height: 35,
     color: 'white',
     backgroundColor: '#172c41',
